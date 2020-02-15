@@ -29,13 +29,13 @@ class write_archive
     //
     // It does nothing. Because sink() iterator always points to the
     // last element of the buffer_.
-    void advance(const std::size_t) const noexcept {return;}
+    void advance(const std::size_t) noexcept {return;}
 
     // Retrace the internal pointer.
     //
     // It pops the last element. `sink()` iterator always points to the last
     // element of the buffer.
-    void retrace(const std::size_t n) const noexcept
+    void retrace(const std::size_t n) noexcept
     {
         for(std::size_t i=0; i<n; ++i) {buffer_.pop_back();}
         return;
@@ -89,7 +89,7 @@ class read_archive
         this->buffer_.resize(file_size);
         ifs.read(reinterpret_cast<char*>(buffer_.data()), file_size);
 
-        this->iter_ = this->buffer_.size();
+        this->iter_ = this->buffer_.begin();
     }
     ~read_archive() = default;
 
@@ -110,9 +110,9 @@ class read_archive
     }
 
     // Advance the internal pointer.
-    void advance(const std::size_t len) const noexcept {return iter_ += len;}
+    void advance(const std::size_t len) noexcept {iter_ += len; return ;}
     // Retrace the internal pointer.
-    void retrace(const std::size_t len) const noexcept {return iter_ -= len;}
+    void retrace(const std::size_t len) noexcept {iter_ -= len; return ;}
 
     // save the current position.
     std::vector<std::uint8_t>::const_iterator npos() const noexcept {return iter_;}
