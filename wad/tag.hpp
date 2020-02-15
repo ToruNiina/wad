@@ -56,7 +56,7 @@ bool save(const tag t, Arc& arc)
 {
     if(!arc.is_writable(1)) {return false;}
 
-    *arc.src() = static_cast<std::uint8_t>(t);
+    *arc.sink() = static_cast<std::uint8_t>(t);
     arc.advance(1);
     return true;
 }
