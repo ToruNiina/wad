@@ -36,7 +36,7 @@ bool from_big_endian(T& v, Arc& arc)
 #if defined(WAD_USE_BIG_ENDIAN)
     std::copy_n(arc.src(), sizeof(T), dst);
 #elif defined(WAD_USE_LITTLE_ENDIAN)
-    std::copy_n(arc.src(), sizeof(T), reverse_iterator<char*>(dst + sizeof(T)));
+    std::copy_n(arc.src(), sizeof(T), std::reverse_iterator<char*>(dst + sizeof(T)));
 #else
 #error "Neither WAD_USE_BIG_ENDIAN or WAD_USE_LITTLE_ENDIAN is defined."
 #endif
