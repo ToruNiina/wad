@@ -106,7 +106,7 @@ class read_archive
     bool is_readable(const std::size_t len) const noexcept
     {
         const std::size_t residual = std::distance(iter_, buffer_.end());
-        return len < residual;
+        return len <= residual;
     }
 
     // Advance the internal pointer.
