@@ -379,6 +379,385 @@ struct save_type_impl<type::ext>
     }
 };
 
+/*   _                 _   _                 _   */
+/*  | | ___   __ _  __| | (_)_ __ ___  _ __ | |  */
+/*  | |/ _ \ / _` |/ _` | | | '_ ` _ \| '_ \| |  */
+/*  | | (_) | (_| | (_| | | | | | | | | |_) | |  */
+/*  |_|\___/ \__,_|\__,_| |_|_| |_| |_| .__/|_|  */
+/*                                    |_|        */
+
+template<>
+struct load_type_impl<type::nil>
+{
+    template<typename Arc>
+    static bool invoke(Arc& arc) noexcept
+    {
+        tag t;
+        if(!load(t, arc)) {return false;}
+        if(t != tag::nil) {arc.retrace(1); return false;}
+        return true;
+    }
+};
+template<>
+struct load_type_impl<type::boolean>
+{
+    template<typename Arc>
+    static bool invoke(bool& v, Arc& arc) noexcept
+    {
+        return load(v, arc);
+    }
+};
+template<>
+struct load_type_impl<type::integer>
+{
+    template<typename T, typename Arc>
+    static bool invoke(T& v, Arc& arc) noexcept
+    {
+        static_assert(std::is_integral<T>::value,
+                      "type of an integer value should be an integer");
+        return load(v, arc);
+    }
+};
+template<>
+struct load_type_impl<type::floating>
+{
+    template<typename T, typename Arc>
+    static bool invoke(T& v, Arc& arc) noexcept
+    {
+        static_assert(std::is_floating_point<T>::value,
+                      "type of an integer value should be an integer");
+        return load(v, arc);
+    }
+};
+template<>
+struct load_type_impl<type::str>
+{
+    // for std::basic_string<char, traitsT, Alloc>
+    template<typename traits, typename Alloc, typename Arc>
+    static bool invoke(std::basic_string<char, traits, Alloc>& v, Arc& arc) noexcept
+    {
+        return load(v, arc);
+    }
+
+//     // string literal disabled
+//     template<typename Arc>
+//     static bool invoke(const char* v, Arc& arc) noexcept
+//     {
+//         return load(v, arc);
+//     }
+};
+
+template<>
+struct load_type_impl<type::bin>
+{
+    template<typename charT, typename traits, typename Alloc, typename Arc>
+    static bool invoke(std::basic_string<charT, traits, Alloc>& v,
+                       Arc& arc) noexcept
+    {
+        const auto savepoint = arc.npos();
+
+        tag t;
+        if(!load(t, arc)) {return false;}
+
+        std::size_t len = 0;
+        if(t == tag::bin8)
+        {
+            std::uint8_t u8;
+            if(!from_big_endian(u8, arc)){arc.seek(savepoint); return false;}
+            len = u8;
+        }
+        else if(t == tag::bin16)
+        {
+            std::uint16_t u16;
+            if(!from_big_endian(u16, arc)){arc.seek(savepoint); return false;}
+            len = u16;
+        }
+        else if(t == tag::bin32)
+        {
+            std::uint32_t u32;
+            if(!from_big_endian(u32, arc)){arc.seek(savepoint); return false;}
+            len = u32;
+        }
+        else
+        {
+            arc.seek(savepoint);
+            return false;
+        }
+        if(!arc.is_readable(len) || len % sizeof(charT) != 0)
+        {
+            arc.seek(savepoint);
+            return false;
+        }
+
+        v.resize(len / sizeof(charT));
+        for(auto& c : v)
+        {
+            std::copy_n(arc.src(), sizeof(charT),
+                        reinterpret_cast<char*>(std::addressof(c)));
+            arc.advance(sizeof(charT));
+        }
+        return true;
+    }
+};
+
+template<>
+struct load_type_impl<type::array>
+{
+    template<typename Arc>
+    static bool invoke(Arc& arc) noexcept
+    {
+        tag t;
+        if(!load(t, arc))            {return false;}
+        if(t != tag::fixarray_lower) {arc.retrace(1); return false;}
+        return true;
+    }
+
+    template<typename T, typename T2, typename ... Ts>
+    static bool invoke(T& head, T2& head2, Ts& ... tail) noexcept
+    {
+        return invoke_impl(std::tie(head), head2, tail...);
+    }
+
+    template<typename ... Ts, typename Head, typename Head2, typename ...Tail>
+    static bool invoke_impl(std::tuple<Ts& ...> refs,
+                            Head& head, Head2& head2, Tail& ... tail) noexcept
+    {
+        return invoke_impl(std::tuple_cat(refs, std::tie(head)), head2, tail...);
+    }
+
+    template<typename ... Ts, typename Arc>
+    static bool invoke_impl(std::tuple<Ts&...> refs, Arc& arc)
+    {
+        return load(refs, arc);
+    }
+};
+
+template<>
+struct load_type_impl<type::map>
+{
+    template<std::size_t N, typename V, typename Arc, typename SavePoint>
+    static bool load_kv_impl(std::tuple<const char(&)[N], V&> kv,
+                             Arc& arc, const SavePoint& savepoint)
+    {
+        std::string key;
+        if(!load(key, arc))        {arc.seek(savepoint); return false;}
+        if(key != std::get<0>(kv)) {arc.seek(savepoint); return false;}
+        return load(std::get<1>(kv), arc);
+    }
+    template<typename V, typename Arc, typename SavePoint>
+    static bool load_kv_impl(std::tuple<const char*const&, V&> kv,
+                             Arc& arc, const SavePoint& savepoint)
+    {
+        std::string key;
+        if(!load(key, arc))        {arc.seek(savepoint); return false;}
+        if(key != std::get<0>(kv)) {arc.seek(savepoint); return false;}
+        return load(std::get<1>(kv), arc);
+    }
+    template<typename K, typename V, typename Arc, typename SavePoint>
+    static typename std::enable_if<!std::is_same<K, const char*>::value, bool>::type
+    load_kv_impl(std::tuple<K const&, V&> kv,
+                 Arc& arc, const SavePoint& savepoint)
+    {
+        K key;
+        if(!load(key, arc))        {arc.seek(savepoint); return false;}
+        if(key != std::get<0>(kv)) {arc.seek(savepoint); return false;}
+        return load(std::get<1>(kv), arc);
+    }
+    template<std::size_t I, typename ... Ts, typename Arc, typename SavePoint>
+    static typename std::enable_if<(I >= sizeof...(Ts)), bool>::type
+    load_kv_rec(std::tuple<Ts...>, Arc&, const SavePoint&)
+    {
+        return true;
+    }
+    template<std::size_t I, typename ... Ts, typename Arc, typename SavePoint>
+    static typename std::enable_if<(I < sizeof...(Ts)), bool>::type
+    load_kv_rec(std::tuple<Ts...> kvs, Arc& arc, const SavePoint& savepoint)
+    {
+        if(!load_kv_impl(std::get<I>(kvs), arc, savepoint)) {return false;}
+        return load_kv_rec<I+1>(kvs, arc, savepoint);
+    }
+
+    template<typename Arc>
+    static bool invoke(Arc& arc) noexcept
+    {
+        tag t;
+        if(!load(t, arc))          {return false;}
+        if(t != tag::fixmap_lower) {arc.retrace(1); return false;}
+        return true;
+    }
+
+    template<typename K, typename V, typename Head, typename ... Tail>
+    static bool invoke(const K& key, V& val,
+                       Head& head, Tail& ... tail) noexcept
+    {
+        static_assert(sizeof...(tail) % 2 == 0);
+        return invoke_impl(std::make_tuple(std::tie(key, val)), head, tail...);
+    }
+
+    template<typename ... Ts, typename K, typename V,
+             typename Head, typename ...Tail>
+    static bool invoke_impl(std::tuple<Ts...> refs,
+         const K& key, V& val, Head& head, Tail& ... tail) noexcept
+    {
+        return invoke_impl(
+                std::tuple_cat(refs, std::make_tuple(std::tie(key, val))),
+                head, tail...);
+    }
+
+    template<typename ... Ts, typename Arc>
+    static bool invoke_impl(std::tuple<Ts...> refs, Arc& arc)
+    {
+        // It does not support reorder, currently...
+
+        constexpr std::size_t size = sizeof...(Ts);
+        const auto savepoint = arc.npos();
+
+        tag t;
+        if(!load(t, arc)) {return false;}
+
+        std::size_t len = 0;
+        const auto byte = static_cast<std::uint8_t>(t);
+        if(static_cast<std::uint8_t>(tag::fixmap_lower) <= byte &&
+           byte <= static_cast<std::uint8_t>(tag::fixmap_upper))
+        {
+            len = byte - static_cast<std::uint8_t>(tag::fixmap_lower);
+        }
+        else if(t == tag::map16)
+        {
+            std::uint16_t sz;
+            if(!from_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+            len = sz;
+        }
+        else if(t == tag::map32)
+        {
+            std::uint32_t sz;
+            if(!from_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+            len = sz;
+        }
+        else
+        {
+            arc.seek(savepoint);
+            return false;
+        }
+
+        if(len != size)
+        {
+            arc.seek(savepoint);
+            return false;
+        }
+        return load_kv_rec<0>(refs, arc, savepoint);
+    }
+};
+
+template<>
+struct load_type_impl<type::ext>
+{
+    // It only writes tag and length. The content itself should be written
+    // manually by the users.
+    template<typename Arc>
+    static bool invoke(std::uint8_t& exttag, std::size_t& len_bytes,
+                       Arc& arc) noexcept
+    {
+        const auto savepoint = arc.npos();
+
+        tag t;
+        if(!load(t, arc)) {return false;}
+
+        switch(t)
+        {
+            case tag::fixext1:
+            {
+                if(!from_big_endian(exttag, arc))
+                {
+                    arc.seek(savepoint);
+                    return false;
+                }
+                len_bytes = 1;
+                return true;
+            }
+            case tag::fixext2:
+            {
+                if(!from_big_endian(exttag, arc))
+                {
+                    arc.seek(savepoint);
+                    return false;
+                }
+                len_bytes = 2;
+                return true;
+            }
+            case tag::fixext4:
+            {
+                if(!from_big_endian(exttag, arc))
+                {
+                    arc.seek(savepoint);
+                    return false;
+                }
+                len_bytes = 4;
+                return true;
+            }
+            case tag::fixext8:
+            {
+                if(!from_big_endian(exttag, arc))
+                {
+                    arc.seek(savepoint);
+                    return false;
+                }
+                len_bytes = 8;
+                return true;
+            }
+            case tag::fixext16:
+            {
+                if(!from_big_endian(exttag, arc))
+                {
+                    arc.seek(savepoint);
+                    return false;
+                }
+                len_bytes = 16;
+                return true;
+            }
+            case tag::ext8:
+            {
+                std::uint8_t len;
+                if(!from_big_endian(len, arc) || !from_big_endian(exttag, arc))
+                {
+                    arc.seek(savepoint);
+                    return false;
+                }
+                len_bytes = len;
+                return true;
+            }
+            case tag::ext16:
+            {
+                std::uint16_t len;
+                if(!from_big_endian(len, arc) || !from_big_endian(exttag, arc))
+                {
+                    arc.seek(savepoint);
+                    return false;
+                }
+                len_bytes = len;
+                return true;
+            }
+            case tag::ext32:
+            {
+                std::uint32_t len;
+                if(!from_big_endian(len, arc) || !from_big_endian(exttag, arc))
+                {
+                    arc.seek(savepoint);
+                    return false;
+                }
+                len_bytes = len;
+                return true;
+            }
+            default:
+            {
+                arc.seek(savepoint);
+                return false;
+            }
+        }
+    }
+};
+
+
 } // detail
 } // wad
 #endif// WAD_TYPE_HPP
