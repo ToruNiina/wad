@@ -48,6 +48,7 @@ int main()
 
 | types                | header file             |
 |:---------------------|:------------------------|
+| `bool`               | `wad/boolean.hpp`       |
 | integers             | `wad/integer.hpp`       |
 | `float` and `double` | `wad/floating.hpp`      |
 | `std::array`         | `wad/array.hpp`         |
