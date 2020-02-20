@@ -4,6 +4,8 @@
 #include "tag.hpp"
 #include <algorithm>
 #include <utility>
+#include <string>
+#include <cstring>
 
 namespace wad
 {
@@ -88,6 +90,46 @@ bool load(std::basic_string<char, Traits, Alloc>& v, Arc& arc)
 
     std::copy_n(arc.src(), v.size(), v.begin());
     arc.advance(v.size());
+    return true;
+}
+
+template<typename Arc>
+bool save(const char* v, Arc& arc)
+{
+    const auto savepoint = arc.npos();
+    const auto len = std::strlen(v);
+    if(len < 32)
+    {
+        const std::uint8_t t = static_cast<std::uint8_t>(tag::fixstr_lower) +
+                               static_cast<std::uint8_t>(len);
+        if(!save(static_cast<tag>(t), arc)) {return false;}
+    }
+    else if(len <= 0xFF)
+    {
+        if(!save(tag::str8, arc)) {return false;}
+        const std::uint8_t sz = len;
+        if(!to_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+    }
+    else if(len <= 0xFFFF)
+    {
+        if(!save(tag::str16, arc)) {return false;}
+        const std::uint16_t sz = len;
+        if(!to_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+    }
+    else if(len <= 0xFFFFFFFF)
+    {
+        if(!save(tag::str32, arc)) {return false;}
+        const std::uint32_t sz = len;
+        if(!to_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+    }
+    else
+    {
+        return false;
+    }
+    if(!arc.is_writable(len)) {arc.seek(savepoint); return false;}
+
+    std::copy_n(v, len, arc.sink());
+    arc.advance(len);
     return true;
 }
 
