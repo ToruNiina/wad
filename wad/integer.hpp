@@ -327,7 +327,7 @@ bool save(const std::int16_t& v, Arc& arc)
     {
         return save(std::uint16_t(v), arc);
     }
-    else if (std::int16_t(std::numeric_limits<std::int8_t>::min) <= v)
+    else if (std::int16_t(std::numeric_limits<std::int8_t>::min()) <= v)
     {
         return save(std::int8_t(v), arc);
     }
@@ -346,7 +346,7 @@ bool save(const std::int32_t& v, Arc& arc)
     {
         return save(std::uint32_t(v), arc);
     }
-    else if (std::int32_t(std::numeric_limits<std::int16_t>::min) <= v)
+    else if (std::int32_t(std::numeric_limits<std::int16_t>::min()) <= v)
     {
         return save(std::int16_t(v), arc);
     }
@@ -365,7 +365,7 @@ bool save(const std::int64_t& v, Arc& arc)
     {
         return save(std::uint64_t(v), arc);
     }
-    else if (std::int64_t(std::numeric_limits<std::int32_t>::min) <= v)
+    else if (std::int64_t(std::numeric_limits<std::int32_t>::min()) <= v)
     {
         return save(std::int32_t(v), arc);
     }
@@ -483,7 +483,7 @@ bool load(std::int32_t& v, Arc& arc)
         // cstdints are guaranteed to be represented as 2's complement.
         std::int8_t i8;
         std::copy_n(reinterpret_cast<const char*>(std::addressof(byte)), 1,
-                    reinterpret_cast<char>(std::addressof(i8)));
+                    reinterpret_cast<char*>(std::addressof(i8)));
         v = i8;
         return true;
     }
