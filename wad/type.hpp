@@ -23,6 +23,12 @@ enum class type: std::uint8_t
     ext
 };
 
+template<typename T> struct is_character : std::false_type {};
+template<> struct is_character<char>     : std::true_type {};
+template<> struct is_character<wchar_t>  : std::true_type {};
+template<> struct is_character<char16_t> : std::true_type {};
+template<> struct is_character<char32_t> : std::true_type {};
+
 // The main purpose of this feature is to provide the more convenient way to
 // write types that has dynamic size, such as array and map.
 //
@@ -38,15 +44,8 @@ enum class type: std::uint8_t
 //     template<typename Arc>
 //     bool save(Arc& arc) const
 //     {
-//         const auto savepoint = arc.npos();
-//
 //         // here it counts number of arguments and add appropreate tag
-//         if(save<wad::type::array>(a, b, c, arc))
-//         {
-//             return true;
-//         }
-//         arc.seek(savepoint);
-//         return false;
+//         return save<wad::type::map>("a", a, "b", b, "c", c, arc);
 //     }
 // };
 // ```
@@ -72,6 +71,13 @@ bool load(Args&& ... args)
 
 namespace detail
 {
+
+/*                         _                 _   */
+/*   ___  __ ___   _____  (_)_ __ ___  _ __ | |  */
+/*  / __|/ _` \ \ / / _ \ | | '_ ` _ \| '_ \| |  */
+/*  \__ \ (_| |\ V /  __/ | | | | | | | |_) | |  */
+/*  |___/\__,_| \_/ \___| |_|_| |_| |_| .__/|_|  */
+/*                                    |_|        */
 
 template<>
 struct save_type_impl<type::nil>
@@ -116,15 +122,9 @@ struct save_type_impl<type::floating>
 template<>
 struct save_type_impl<type::str>
 {
-    template<typename T>
-    struct is_char_string : std::false_type{};
-    template<typename T, typename A>
-    struct is_char_string<std::basic_string<char, T, A>>: std::true_type {};
-
-    // for std::basic_string<char, traitsT, Alloc>
-    template<typename T, typename Arc>
-    static typename std::enable_if<is_char_string<T>::value, bool>::type
-    invoke(const T& v, Arc& arc) noexcept
+    template<typename traits, typename Alloc, typename Arc>
+    static bool invoke(const std::basic_string<char, traits, Alloc>& v,
+                       Arc& arc) noexcept
     {
         return save(v, arc);
     }
@@ -140,18 +140,13 @@ struct save_type_impl<type::str>
 template<>
 struct save_type_impl<type::bin>
 {
-    template<typename T>
-    struct is_std_string : std::false_type{};
-    template<typename C, typename T, typename A>
-    struct is_std_string<std::basic_string<C, T, A>>: std::true_type {};
-
     // for std::basic_string<charT, traitsT, Alloc>
-    template<typename T, typename Arc>
-    static typename std::enable_if<is_std_string<T>::value, bool>::type
-    invoke(const T& v, Arc& arc) noexcept
+    template<typename charT, typename traitsT, typename Alloc, typename Arc>
+    static bool invoke(const std::basic_string<charT, traitsT, Alloc>& v,
+                       Arc& arc) noexcept
     {
         const auto savepoint = arc.npos();
-        const auto len = sizeof(typename T::value_type) * v.size();
+        const auto len = sizeof(charT) * v.size();
         if(len <= 0xFF)
         {
             if(!save(tag::bin8, arc)) {return false;}
@@ -180,12 +175,6 @@ struct save_type_impl<type::bin>
         arc.advance(len);
         return true;
     }
-
-    template<typename T> struct is_character : std::false_type {};
-    template<> struct is_character<char>     : std::true_type {};
-    template<> struct is_character<wchar_t>  : std::true_type {};
-    template<> struct is_character<char16_t> : std::true_type {};
-    template<> struct is_character<char32_t> : std::true_type {};
 
     // for char* and their variants
     template<typename C, typename Arc>
@@ -296,7 +285,6 @@ struct save_type_impl<type::map>
                                    static_cast<std::uint8_t>(size);
             if(!save(static_cast<tag>(t), arc))
             {
-                arc.seek(savepoint);
                 return false;
             }
         }
@@ -343,47 +331,47 @@ struct save_type_impl<type::ext>
         const auto savepoint = arc.npos();
         if(len_bytes == 1)
         {
-            if(!save(tag::fixext1, arc))   {arc.seek(savepoint); return false;}
+            if(!save(tag::fixext1, arc))   {                     return false;}
             if(!to_big_endian(exttag, arc)){arc.seek(savepoint); return false;}
         }
         else if(len_bytes == 2)
         {
-            if(!save(tag::fixext2, arc))   {arc.seek(savepoint); return false;}
+            if(!save(tag::fixext2, arc))   {                     return false;}
             if(!to_big_endian(exttag, arc)){arc.seek(savepoint); return false;}
         }
         else if(len_bytes == 4)
         {
-            if(!save(tag::fixext4, arc))   {arc.seek(savepoint); return false;}
+            if(!save(tag::fixext4, arc))   {                     return false;}
             if(!to_big_endian(exttag, arc)){arc.seek(savepoint); return false;}
         }
         else if(len_bytes == 8)
         {
-            if(!save(tag::fixext8, arc))   {arc.seek(savepoint); return false;}
+            if(!save(tag::fixext8, arc))   {                     return false;}
             if(!to_big_endian(exttag, arc)){arc.seek(savepoint); return false;}
         }
         else if(len_bytes == 16)
         {
-            if(!save(tag::fixext16, arc))  {arc.seek(savepoint); return false;}
+            if(!save(tag::fixext16, arc))  {                     return false;}
             if(!to_big_endian(exttag, arc)){arc.seek(savepoint); return false;}
         }
         else if(len_bytes <= 0xFF)
         {
             const std::uint8_t len = len_bytes;
-            if(!save(tag::ext8, arc))      {arc.seek(savepoint); return false;}
+            if(!save(tag::ext8, arc))      {                     return false;}
             if(!to_big_endian(len, arc))   {arc.seek(savepoint); return false;}
             if(!to_big_endian(exttag, arc)){arc.seek(savepoint); return false;}
         }
         else if(len_bytes <= 0xFFFF)
         {
             const std::uint16_t len = len_bytes;
-            if(!save(tag::ext16, arc))     {arc.seek(savepoint); return false;}
+            if(!save(tag::ext16, arc))     {                     return false;}
             if(!to_big_endian(len, arc))   {arc.seek(savepoint); return false;}
             if(!to_big_endian(exttag, arc)){arc.seek(savepoint); return false;}
         }
         else if(len_bytes <= 0xFFFFFFFF)
         {
             const std::uint32_t len = len_bytes;
-            if(!save(tag::ext32, arc))     {arc.seek(savepoint); return false;}
+            if(!save(tag::ext32, arc))     {                     return false;}
             if(!to_big_endian(len, arc))   {arc.seek(savepoint); return false;}
             if(!to_big_endian(exttag, arc)){arc.seek(savepoint); return false;}
         }
