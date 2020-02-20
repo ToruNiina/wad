@@ -2,7 +2,6 @@
 #define WAD_VECTOR_HPP
 #include "binary_cast.hpp"
 #include "tag.hpp"
-#include "integer.hpp"
 #include <utility>
 #include <vector>
 
