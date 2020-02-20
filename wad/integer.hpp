@@ -325,7 +325,7 @@ bool save(const std::int16_t& v, Arc& arc)
 {
     if(0 <= v)
     {
-        return save(std::uint16_t(v));
+        return save(std::uint16_t(v), arc);
     }
     else if (std::int16_t(std::numeric_limits<std::int8_t>::min) <= v)
     {
@@ -344,7 +344,7 @@ bool save(const std::int32_t& v, Arc& arc)
 {
     if(0 <= v)
     {
-        return save(std::uint32_t(v));
+        return save(std::uint32_t(v), arc);
     }
     else if (std::int32_t(std::numeric_limits<std::int16_t>::min) <= v)
     {
@@ -363,7 +363,7 @@ bool save(const std::int64_t& v, Arc& arc)
 {
     if(0 <= v)
     {
-        return save(std::uint64_t(v));
+        return save(std::uint64_t(v), arc);
     }
     else if (std::int64_t(std::numeric_limits<std::int32_t>::min) <= v)
     {
