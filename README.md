@@ -10,17 +10,21 @@ namespace user
 {
 struct defined
 {
-    std::map<std::string, int> values;
+    std::string         name;
+    std::vector<double> values;
+    std::map<std::string, int> nums;
 
     template<typename Archive>
     bool save(Archive& arc) const
     {
-        return wad::save(this->values, arc);
+        return wad::save<wad::type::map>(
+            "name", name, "values", values, "nums", nums, arc);
     }
     template<typename Archive>
     bool load(Archive& arc)
     {
-        return wad::load(this->values, arc);
+        return wad::load<wad::type::map>(
+            "name", name, "values", values, "nums", nums, arc);
     }
 };
 } // user
@@ -30,13 +34,13 @@ int main()
     std::vector<user::defined> uds = {/* ... */};
 
     wad::write_archive sink;
-    wad::save(uds, sink);
+    if(!wad::save(uds, sink)) {return 1;}
     sink.dump("checkpoint.msg");
 
     // ...
 
     wad::read_archive src("checkpoint.msg");
-    wad::load(uds, src);
+    if(!wad::load(uds, src)) {return 1;}
 
     // ...
 
