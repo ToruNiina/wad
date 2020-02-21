@@ -67,5 +67,18 @@ struct test_read_archive
     std::vector<std::uint8_t>::const_iterator iter_;
 };
 
+template<typename T>
+T save_load(const T& t)
+{
+    test_write_archive warc;
+    save(t, warc);
+
+    T retval;
+    test_read_archive rarc(warc);
+    load(retval, rarc);
+
+    return retval;
+}
+
 } // wad
 #endif// WAD_TEST_UTILITY_HPP
