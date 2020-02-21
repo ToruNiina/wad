@@ -1,4 +1,5 @@
 set(TEST_NAMES
+    test_boolean
     test_floating
     )
 
