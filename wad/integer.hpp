@@ -428,7 +428,7 @@ bool load(std::int16_t& v, Arc& arc)
         // cstdints are guaranteed to be represented as 2's complement.
         std::int8_t i8;
         std::copy_n(reinterpret_cast<const char*>(std::addressof(byte)), 1,
-                    reinterpret_cast<char>(std::addressof(i8)));
+                    reinterpret_cast<char*>(std::addressof(i8)));
         v = i8;
         return true;
     }
@@ -552,7 +552,7 @@ bool load(std::int64_t& v, Arc& arc)
         // cstdints are guaranteed to be represented as 2's complement.
         std::int8_t i8;
         std::copy_n(reinterpret_cast<const char*>(std::addressof(byte)), 1,
-                    reinterpret_cast<char>(std::addressof(i8)));
+                    reinterpret_cast<char*>(std::addressof(i8)));
         v = i8;
         return true;
     }
