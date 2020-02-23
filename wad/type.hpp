@@ -22,6 +22,13 @@ namespace detail
 template<type T> struct save_load_type_tag_impl;
 } // detail
 
+// This function is mainly for internal use. This only suports
+// - str
+// - bin
+// - array
+// - map
+// - ext
+
 template<type T, typename Arc>
 bool save(Arc& arc, const std::size_t len)
 {
