@@ -52,7 +52,7 @@ enum class tag: std::uint8_t
 };
 
 template<typename Arc>
-bool save(const tag t, Arc& arc)
+bool save(Arc& arc, const tag t)
 {
     if(!arc.is_writable(1)) {return false;}
 
@@ -78,7 +78,7 @@ bool save(const tag t, Arc& arc)
 // it covers all the values that can be represented by std::uint8_t. So any
 // std::uint8_t value can be converted into `tag`.
 template<typename Arc>
-bool load(tag& t, Arc& arc)
+bool load(Arc& arc, tag& t)
 {
     if(!arc.is_readable(1)) {return false;}
 

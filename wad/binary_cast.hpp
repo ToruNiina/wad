@@ -10,7 +10,7 @@ namespace wad
 {
 
 template<typename T, typename Arc>
-bool to_big_endian(const T& v, Arc& arc)
+bool to_big_endian(Arc& arc, const T& v)
 {
     const char* src = reinterpret_cast<const char*>(std::addressof(v));
     if(!arc.is_writable(sizeof(T))) {return false;}
@@ -28,7 +28,7 @@ bool to_big_endian(const T& v, Arc& arc)
 }
 
 template<typename T, typename Arc>
-bool from_big_endian(T& v, Arc& arc)
+bool from_big_endian(Arc& arc, T& v)
 {
     char* dst = reinterpret_cast<char*>(std::addressof(v));
     if(!arc.is_readable(sizeof(T))) {return false;}
