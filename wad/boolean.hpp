@@ -5,23 +5,23 @@
 namespace wad
 {
 template<typename Arc>
-bool save(const bool v, Arc& arc)
+bool save(Arc& arc, const bool v)
 {
     if(v)
     {
-        return save(tag::true_tag, arc);
+        return save(arc, tag::true_tag);
     }
     else
     {
-        return save(tag::false_tag, arc);
+        return save(arc, tag::false_tag);
     }
 }
 
 template<typename Arc>
-bool load(bool& v, Arc& arc)
+bool load(Arc& arc, bool& v)
 {
     tag t;
-    if(!load(t, arc)) {return false;}
+    if(!load(arc, t)) {return false;}
 
     if(t == tag::true_tag)
     {

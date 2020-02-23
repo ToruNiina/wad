@@ -9,7 +9,7 @@ namespace wad
 {
 
 template<typename T, std::size_t N, typename Arc>
-bool save(const std::array<T, N>& v, Arc& arc)
+bool save(Arc& arc, const std::array<T, N>& v)
 {
     const auto savepoint = arc.npos();
 
@@ -17,7 +17,7 @@ bool save(const std::array<T, N>& v, Arc& arc)
     {
         const std::uint8_t t = static_cast<std::uint8_t>(tag::fixarray_lower) +
                                static_cast<std::uint8_t>(v.size());
-        if(!save(static_cast<tag>(t), arc))
+        if(!save(arc, static_cast<tag>(t)))
         {
             arc.seek(savepoint);
             return false;
@@ -25,7 +25,7 @@ bool save(const std::array<T, N>& v, Arc& arc)
     }
     else if(v.size() <= 0xFFFF)
     {
-        if(!save(tag::array16, arc)) {return false;}
+        if(!save(arc, tag::array16)) {return false;}
 
         const std::uint16_t sz = v.size();
         if(!to_big_endian(sz, arc))
@@ -36,7 +36,7 @@ bool save(const std::array<T, N>& v, Arc& arc)
     }
     else if(v.size() <= 0xFFFFFFFF)
     {
-        if(!save(tag::array32, arc)) {return false;}
+        if(!save(arc, tag::array32)) {return false;}
 
         const std::uint32_t sz = v.size();
         if(!to_big_endian(sz, arc))
@@ -52,7 +52,7 @@ bool save(const std::array<T, N>& v, Arc& arc)
 
     for(const auto& elem : v)
     {
-        if(!save(elem, arc))
+        if(!save(arc, elem))
         {
             arc.seek(savepoint);
             return false;
@@ -67,7 +67,7 @@ bool load(std::array<T, N>& v, Arc& arc)
     const auto savepoint = arc.npos();
 
     tag t;
-    if(!load(t, arc)) {return false;}
+    if(!load(arc, t)) {return false;}
 
     const auto byte = static_cast<std::uint8_t>(t);
     if(        static_cast<std::uint8_t>(tag::fixarray_lower) <= byte &&
@@ -82,7 +82,7 @@ bool load(std::array<T, N>& v, Arc& arc)
     else if(t == tag::array16)
     {
         std::uint16_t sz = 0;
-        if(!from_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
         if(v.size() != sz)
         {
             arc.seek(savepoint);
@@ -92,7 +92,7 @@ bool load(std::array<T, N>& v, Arc& arc)
     else if(t == tag::array32)
     {
         std::uint32_t sz = 0;
-        if(!from_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
         if(v.size() != sz)
         {
             arc.seek(savepoint);
@@ -107,7 +107,7 @@ bool load(std::array<T, N>& v, Arc& arc)
 
     for(auto& elem : v)
     {
-        if(!load(elem, arc))
+        if(!load(arc, elem))
         {
             arc.seek(savepoint);
             return false;

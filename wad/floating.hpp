@@ -9,29 +9,29 @@ namespace wad
 {
 
 template<typename Arc>
-bool save(const float& v, Arc& arc)
+bool save(Arc& arc, const float& v)
 {
-    if(!save(tag::float32, arc)) {return false;}
-    if(!to_big_endian(v, arc))   {arc.retrace(1); return false;}
+    if(!save(arc, tag::float32)) {return false;}
+    if(!to_big_endian(arc, v))   {arc.retrace(1); return false;}
     return true;
 }
 
 template<typename Arc>
-bool save(const double& v, Arc& arc)
+bool save(Arc& arc, const double& v)
 {
-    if(!save(tag::float64, arc)) {return false;}
-    if(!to_big_endian(v, arc))   {arc.retrace(1); return false;}
+    if(!save(arc, tag::float64)) {return false;}
+    if(!to_big_endian(arc, v))   {arc.retrace(1); return false;}
     return true;
 }
 
 
 template<typename Arc>
-bool load(float& v, Arc& arc)
+bool load(Arc& arc, float& v)
 {
     tag t;
-    if(!load(t, arc)) {return false;}
+    if(!load(arc, t)) {return false;}
 
-    if(t != tag::float32 || !from_big_endian(v, arc))
+    if(t != tag::float32 || !from_big_endian(arc, v))
     {
         arc.retrace(1);
         return false;
@@ -40,12 +40,12 @@ bool load(float& v, Arc& arc)
 }
 
 template<typename Arc>
-bool load(double& v, Arc& arc)
+bool load(Arc& arc, double& v)
 {
     tag t;
-    if(!load(t, arc)) {return false;}
+    if(!load(arc, t)) {return false;}
 
-    if(t != tag::float64 || !from_big_endian(v, arc))
+    if(t != tag::float64 || !from_big_endian(arc, v))
     {
         arc.retrace(1);
         return false;

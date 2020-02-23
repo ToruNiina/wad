@@ -29,13 +29,13 @@ struct has_load_method : decltype(detail::has_load_method_impl<T>(nullptr)) {};
 
 template<typename T, typename Arc>
 typename std::enable_if<has_save_method<T>::value, bool>::type
-save(const T& v, Arc& arc)
+save(Arc& arc, const T& v)
 {
     return v.save(arc);
 }
 template<typename T, typename Arc>
 typename std::enable_if<has_load_method<T>::value, bool>::type
-load(T& v, Arc& arc)
+load(Arc& arc, T& v)
 {
     return v.load(arc);
 }

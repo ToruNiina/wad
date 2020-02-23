@@ -12,44 +12,44 @@ namespace detail
 
 template<std::size_t I, typename Tuple, typename Arc, typename SavePoint>
 typename std::enable_if<(I >= std::tuple_size<Tuple>::value), bool>::type
-save_tuple_impl(const Tuple&, Arc&, const SavePoint&)
+save_tuple_impl(Arc&, const Tuple&, const SavePoint&)
 {
     return true;
 }
 template<std::size_t I, typename Tuple, typename Arc, typename SavePoint>
 typename std::enable_if<(I < std::tuple_size<Tuple>::value), bool>::type
-save_tuple_impl(const Tuple& v, Arc& arc, const SavePoint& savepoint)
+save_tuple_impl(Arc& arc, const Tuple& v, const SavePoint& savepoint)
 {
-    if(!save(std::get<I>(v), arc))
+    if(!save(arc, std::get<I>(v)))
     {
         arc.seek(savepoint);
         return false;
     }
-    return save_tuple_impl<I+1>(v, arc, savepoint);
+    return save_tuple_impl<I+1>(arc, v, savepoint);
 }
 
 template<std::size_t I, typename Tuple, typename Arc, typename SavePoint>
 typename std::enable_if<(I >= std::tuple_size<Tuple>::value), bool>::type
-load_tuple_impl(Tuple&, Arc&, const SavePoint&)
+load_tuple_impl(Arc&, Tuple&, const SavePoint&)
 {
     return true;
 }
 template<std::size_t I, typename Tuple, typename Arc, typename SavePoint>
 typename std::enable_if<(I < std::tuple_size<Tuple>::value), bool>::type
-load_tuple_impl(Tuple& v, Arc& arc, const SavePoint& savepoint)
+load_tuple_impl(Arc& arc, Tuple& v, const SavePoint& savepoint)
 {
-    if(!load(std::get<I>(v), arc))
+    if(!load(arc, std::get<I>(v)))
     {
         arc.seek(savepoint);
         return false;
     }
-    return load_tuple_impl<I+1>(v, arc, savepoint);
+    return load_tuple_impl<I+1>(arc, v, savepoint);
 }
 
 } // detail
 
 template<typename Arc, typename ... Ts>
-bool save(const std::tuple<Ts...>& v, Arc& arc)
+bool save(Arc& arc, const std::tuple<Ts...>& v)
 {
     constexpr std::size_t size = sizeof...(Ts);
     const auto savepoint = arc.npos();
@@ -58,7 +58,7 @@ bool save(const std::tuple<Ts...>& v, Arc& arc)
     {
         const std::uint8_t t = static_cast<std::uint8_t>(tag::fixarray_lower) +
                                static_cast<std::uint8_t>(size);
-        if(!save(static_cast<tag>(t), arc))
+        if(!save(arc, static_cast<tag>(t)))
         {
             arc.seek(savepoint);
             return false;
@@ -66,10 +66,10 @@ bool save(const std::tuple<Ts...>& v, Arc& arc)
     }
     else if(size <= 0xFFFF)
     {
-        if(!save(tag::array16, arc)) {return false;}
+        if(!save(arc, tag::array16)) {return false;}
 
         const std::uint16_t sz = size;
-        if(!to_big_endian(sz, arc))
+        if(!to_big_endian(arc, sz))
         {
             arc.seek(savepoint);
             return false;
@@ -77,10 +77,10 @@ bool save(const std::tuple<Ts...>& v, Arc& arc)
     }
     else if(size <= 0xFFFFFFFF)
     {
-        if(!save(tag::array32, arc)) {return false;}
+        if(!save(arc, tag::array32)) {return false;}
 
         const std::uint32_t sz = size;
-        if(!to_big_endian(sz, arc))
+        if(!to_big_endian(arc, sz))
         {
             arc.seek(savepoint);
             return false;
@@ -90,17 +90,17 @@ bool save(const std::tuple<Ts...>& v, Arc& arc)
     {
         return false;
     }
-    return detail::save_tuple_impl<0>(v, arc, savepoint);
+    return detail::save_tuple_impl<0>(arc, v, savepoint);
 }
 
 template<typename Arc, typename ... Ts>
-bool load(std::tuple<Ts...>& v, Arc& arc)
+bool load(Arc& arc, std::tuple<Ts...>& v)
 {
     constexpr std::size_t size = sizeof...(Ts);
     const auto savepoint = arc.npos();
 
     tag t;
-    if(!load(t, arc)) {return false;}
+    if(!load(arc, t)) {return false;}
 
     const auto byte = static_cast<std::uint8_t>(t);
     if(        static_cast<std::uint8_t>(tag::fixarray_lower) <= byte &&
@@ -115,7 +115,7 @@ bool load(std::tuple<Ts...>& v, Arc& arc)
     else if(t == tag::array16)
     {
         std::uint16_t sz = 0;
-        if(!from_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
         if(size != sz)
         {
             arc.seek(savepoint);
@@ -125,7 +125,7 @@ bool load(std::tuple<Ts...>& v, Arc& arc)
     else if(t == tag::array32)
     {
         std::uint32_t sz = 0;
-        if(!from_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
         if(size != sz)
         {
             arc.seek(savepoint);
@@ -137,7 +137,7 @@ bool load(std::tuple<Ts...>& v, Arc& arc)
         arc.seek(savepoint);
         return false;
     }
-    return detail::load_tuple_impl<0>(v, arc, savepoint);
+    return detail::load_tuple_impl<0>(arc, v, savepoint);
 }
 
 } // wad

@@ -9,7 +9,7 @@ namespace wad
 {
 
 template<typename Key, typename T, typename Compare, typename Alloc, typename Arc>
-bool save(const std::map<Key, T, Compare, Alloc>& v, Arc& arc)
+bool save(Arc& arc, const std::map<Key, T, Compare, Alloc>& v)
 {
     const auto savepoint = arc.npos();
 
@@ -17,7 +17,7 @@ bool save(const std::map<Key, T, Compare, Alloc>& v, Arc& arc)
     {
         const std::uint8_t t = static_cast<std::uint8_t>(tag::fixmap_lower) +
                                static_cast<std::uint8_t>(v.size());
-        if(!save(static_cast<tag>(t), arc))
+        if(!save(arc, static_cast<tag>(t)))
         {
             arc.seek(savepoint);
             return false;
@@ -25,10 +25,10 @@ bool save(const std::map<Key, T, Compare, Alloc>& v, Arc& arc)
     }
     else if(v.size() <= 0xFFFF)
     {
-        if(!save(tag::map16, arc)) {return false;}
+        if(!save(arc, tag::map16)) {return false;}
 
         const std::uint16_t sz = v.size();
-        if(!to_big_endian(sz, arc))
+        if(!to_big_endian(arc, sz))
         {
             arc.seek(savepoint);
             return false;
@@ -36,10 +36,10 @@ bool save(const std::map<Key, T, Compare, Alloc>& v, Arc& arc)
     }
     else if(v.size() <= 0xFFFFFFFF)
     {
-        if(!save(tag::map32, arc)) {return false;}
+        if(!save(arc, tag::map32)) {return false;}
 
         const std::uint32_t sz = v.size();
-        if(!to_big_endian(sz, arc))
+        if(!to_big_endian(arc, sz))
         {
             arc.seek(savepoint);
             return false;
@@ -51,12 +51,12 @@ bool save(const std::map<Key, T, Compare, Alloc>& v, Arc& arc)
     }
     for(const auto& elem : v)
     {
-        if(!save(elem.first, arc))
+        if(!save(arc, elem.first))
         {
             arc.seek(savepoint);
             return false;
         }
-        if(!save(elem.second, arc))
+        if(!save(arc, elem.second))
         {
             arc.seek(savepoint);
             return false;
@@ -66,12 +66,12 @@ bool save(const std::map<Key, T, Compare, Alloc>& v, Arc& arc)
 }
 
 template<typename Key, typename T, typename Compare, typename Alloc, typename Arc>
-bool load(std::map<Key, T, Compare, Alloc>& v, Arc& arc)
+bool load(Arc& arc, std::map<Key, T, Compare, Alloc>& v)
 {
     const auto savepoint = arc.npos();
 
     tag t;
-    if(!load(t, arc)) {return false;}
+    if(!load(arc, t)) {return false;}
 
     std::size_t size = 0;
     const auto byte = static_cast<std::uint8_t>(t);
@@ -83,13 +83,13 @@ bool load(std::map<Key, T, Compare, Alloc>& v, Arc& arc)
     else if(t == tag::map16)
     {
         std::uint16_t sz = 0;
-        if(!from_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
         size = sz;
     }
     else if(t == tag::map32)
     {
         std::uint32_t sz = 0;
-        if(!from_big_endian(sz, arc)) {arc.seek(savepoint); return false;}
+        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
         size = sz;
     }
     else
@@ -101,12 +101,12 @@ bool load(std::map<Key, T, Compare, Alloc>& v, Arc& arc)
     for(std::size_t i=0; i<size; ++i)
     {
         Key k; T val;
-        if(!load(k, arc))
+        if(!load(arc, k))
         {
             arc.seek(savepoint);
             return false;
         }
-        if(!load(val, arc))
+        if(!load(arc, val))
         {
             arc.seek(savepoint);
             return false;
