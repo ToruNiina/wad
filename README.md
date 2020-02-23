@@ -21,14 +21,14 @@ struct defined
     template<typename Archive>
     bool save(Archive& arc) const
     {
-        return wad::save<wad::type::map>(
-            "name", name, "values", values, "nums", nums, arc);
+        return wad::save<wad::type::map>(arc,
+            "name", name, "values", values, "nums", nums);
     }
     template<typename Archive>
     bool load(Archive& arc)
     {
-        return wad::load<wad::type::map>(
-            "name", name, "values", values, "nums", nums, arc);
+        return wad::load<wad::type::map>(arc,
+            "name", name, "values", values, "nums", nums);
     }
 };
 } // user
@@ -38,13 +38,13 @@ int main()
     std::vector<user::defined> uds = {/* ... */};
 
     wad::write_archive sink;
-    if(!wad::save(uds, sink)) {return 1;}
+    if(!wad::save(sink, uds)) {return 1;}
     sink.dump("checkpoint.msg");
 
     // ...
 
     wad::read_archive src("checkpoint.msg");
-    if(!wad::load(uds, src)) {return 1;}
+    if(!wad::load(src, uds)) {return 1;}
 
     // ...
 
