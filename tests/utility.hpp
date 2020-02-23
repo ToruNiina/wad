@@ -71,11 +71,11 @@ template<typename T>
 T save_load(const T& t)
 {
     test_write_archive warc;
-    save(t, warc);
+    save(warc, t);
 
     T retval;
     test_read_archive rarc(warc);
-    load(retval, rarc);
+    load(rarc, retval);
 
     return retval;
 }
@@ -84,11 +84,11 @@ template<typename U, typename T>
 U save_load_convert(const T& t)
 {
     test_write_archive warc;
-    save(t, warc);
+    save(warc, t);
 
     U retval;
     test_read_archive rarc(warc);
-    load(retval, rarc);
+    load(rarc, retval);
 
     return retval;
 }
