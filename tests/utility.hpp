@@ -80,5 +80,19 @@ T save_load(const T& t)
     return retval;
 }
 
+template<typename U, typename T>
+U save_load_convert(const T& t)
+{
+    test_write_archive warc;
+    save(t, warc);
+
+    U retval;
+    test_read_archive rarc(warc);
+    load(retval, rarc);
+
+    return retval;
+}
+
+
 } // wad
 #endif// WAD_TEST_UTILITY_HPP

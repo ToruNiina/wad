@@ -3,22 +3,6 @@
 #include "wad/integer.hpp"
 #include "utility.hpp"
 
-namespace wad
-{
-template<typename U, typename T>
-U save_load_convert(const T& t)
-{
-    test_write_archive warc;
-    save(t, warc);
-
-    U retval;
-    test_read_archive rarc(warc);
-    load(retval, rarc);
-
-    return retval;
-}
-} // wad
-
 TEST_CASE( "uint8_t save/load", "[u8]" ) {
     REQUIRE(wad::save_load(std::uint8_t(42))  ==  42u);
     REQUIRE(wad::save_load(std::uint8_t(142)) == 142u);
