@@ -2,11 +2,13 @@
 
 **This repository is under development.**
 
-serialize into msgpack.
+serialize/deserialize into/from msgpack.
 
 ```cpp
 #include <map>
-#include <wad/type.hpp>
+#include <vector>
+#include <string>
+#include <wad.hpp>
 
 namespace user
 {
@@ -57,10 +59,14 @@ int main()
 | `bool`               | `wad/boolean.hpp`       |
 | integers             | `wad/integer.hpp`       |
 | `float` and `double` | `wad/floating.hpp`      |
-| `std::array`         | `wad/array.hpp`         |
-| `std::deque`         | `wad/deque.hpp`         |
 | `std::string`        | `wad/string.hpp`        |
 | `std::vector`        | `wad/vector.hpp`        |
+| `std::array`         | `wad/array.hpp`         |
+| `std::deque`         | `wad/deque.hpp`         |
+| `std::list`          | `wad/list.hpp`          |
+| `std::forward_list`  | `wad/forward_list.hpp`  |
+| `std::set`           | `wad/set.hpp`           |
+| `std::unordered_set` | `wad/unordered_set.hpp` |
 | `std::map`           | `wad/map.hpp`           |
 | `std::unordered_map` | `wad/unordered_map.hpp` |
 | `std::pair`          | `wad/pair.hpp`          |
@@ -99,7 +105,7 @@ class write_archive
 ### Readable archiver requiremnets
 
 ```cpp
-class write_archive
+class read_archive
 {
   public:
 
