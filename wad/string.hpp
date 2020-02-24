@@ -1,7 +1,7 @@
 #ifndef WAD_STRING_HPP
 #define WAD_STRING_HPP
 #include "binary_cast.hpp"
-#include "tag.hpp"
+#include "type.hpp"
 #include <algorithm>
 #include <utility>
 #include <string>
@@ -14,35 +14,12 @@ template<typename Traits, typename Alloc, typename Arc>
 bool save(Arc& arc, const std::basic_string<char, Traits, Alloc>& v)
 {
     const auto savepoint = arc.npos();
-    if(v.size() < 32)
+
+    if(!save<type::str>(arc, v.size()) || !arc.is_writable(v.size()))
     {
-        const std::uint8_t t = static_cast<std::uint8_t>(tag::fixstr_lower) +
-                               static_cast<std::uint8_t>(v.size());
-        if(!save(arc, static_cast<tag>(t))) {return false;}
-    }
-    else if(v.size() <= 0xFF)
-    {
-        if(!save(arc, tag::str8)) {return false;}
-        const std::uint8_t sz = v.size();
-        if(!to_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-    }
-    else if(v.size() <= 0xFFFF)
-    {
-        if(!save(arc, tag::str16)) {return false;}
-        const std::uint16_t sz = v.size();
-        if(!to_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-    }
-    else if(v.size() <= 0xFFFFFFFF)
-    {
-        if(!save(arc, tag::str32)) {return false;}
-        const std::uint32_t sz = v.size();
-        if(!to_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-    }
-    else
-    {
+        arc.seek(savepoint);
         return false;
     }
-    if(!arc.is_writable(v.size())) {arc.seek(savepoint); return false;}
 
     std::copy(v.begin(), v.end(), arc.sink());
     arc.advance(v.size());
@@ -54,40 +31,14 @@ bool load(Arc& arc, std::basic_string<char, Traits, Alloc>& v)
 {
     const auto savepoint = arc.npos();
 
-    tag t;
-    if(!load(arc, t)) {return false;}
-
-    const auto byte = static_cast<std::uint8_t>(t);
-    if(        static_cast<std::uint8_t>(tag::fixstr_lower) <= byte &&
-       byte <= static_cast<std::uint8_t>(tag::fixstr_upper))
-    {
-        v.resize(byte - static_cast<std::uint8_t>(tag::fixstr_lower));
-    }
-    else if(t == tag::str8)
-    {
-        std::uint8_t sz = 0;
-        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-        v.resize(sz);
-    }
-    else if(t == tag::str16)
-    {
-        std::uint16_t sz = 0;
-        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-        v.resize(sz);
-    }
-    else if(t == tag::str32)
-    {
-        std::uint32_t sz = 0;
-        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-        v.resize(sz);
-    }
-    else
+    std::size_t len;
+    if(!load<type::str>(arc, len) || !arc.is_readable(len))
     {
         arc.seek(savepoint);
         return false;
     }
-    if(!arc.is_readable(v.size())) {arc.seek(savepoint); return false;}
 
+    v.resize(len);
     std::copy_n(arc.src(), v.size(), v.begin());
     arc.advance(v.size());
     return true;
@@ -97,36 +48,13 @@ template<typename Arc>
 bool save(Arc& arc, const char* v)
 {
     const auto savepoint = arc.npos();
+
     const auto len = std::strlen(v);
-    if(len < 32)
+    if(!save<type::str>(arc, len) || !arc.is_writable(len))
     {
-        const std::uint8_t t = static_cast<std::uint8_t>(tag::fixstr_lower) +
-                               static_cast<std::uint8_t>(len);
-        if(!save(arc, static_cast<tag>(t))) {return false;}
-    }
-    else if(len <= 0xFF)
-    {
-        if(!save(arc, tag::str8)) {return false;}
-        const std::uint8_t sz = len;
-        if(!to_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-    }
-    else if(len <= 0xFFFF)
-    {
-        if(!save(arc, tag::str16)) {return false;}
-        const std::uint16_t sz = len;
-        if(!to_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-    }
-    else if(len <= 0xFFFFFFFF)
-    {
-        if(!save(arc, tag::str32)) {return false;}
-        const std::uint32_t sz = len;
-        if(!to_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-    }
-    else
-    {
+        arc.seek(savepoint);
         return false;
     }
-    if(!arc.is_writable(len)) {arc.seek(savepoint); return false;}
 
     std::copy_n(v, len, arc.sink());
     arc.advance(len);
