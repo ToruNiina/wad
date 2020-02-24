@@ -15,7 +15,7 @@ bool save(Arc& arc, const std::basic_string<char, Traits, Alloc>& v)
 {
     const auto savepoint = arc.npos();
 
-    if(!save<type::str>(arc, v.size()) || !arc.is_writable(v.size()))
+    if(!save_length<type::str>(arc, v.size()) || !arc.is_writable(v.size()))
     {
         arc.seek(savepoint);
         return false;
@@ -32,7 +32,7 @@ bool load(Arc& arc, std::basic_string<char, Traits, Alloc>& v)
     const auto savepoint = arc.npos();
 
     std::size_t len;
-    if(!load<type::str>(arc, len) || !arc.is_readable(len))
+    if(!load_length<type::str>(arc, len) || !arc.is_readable(len))
     {
         arc.seek(savepoint);
         return false;
@@ -50,7 +50,7 @@ bool save(Arc& arc, const char* v)
     const auto savepoint = arc.npos();
 
     const auto len = std::strlen(v);
-    if(!save<type::str>(arc, len) || !arc.is_writable(len))
+    if(!save_length<type::str>(arc, len) || !arc.is_writable(len))
     {
         arc.seek(savepoint);
         return false;

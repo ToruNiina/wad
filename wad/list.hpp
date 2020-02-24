@@ -12,7 +12,7 @@ template<typename T, typename Alloc, typename Arc>
 bool save(Arc& arc, const std::list<T, Alloc>& v)
 {
     const auto savepoint = arc.npos();
-    if(!save<type::array>(arc, v.size()))
+    if(!save_length<type::array>(arc, v.size()))
     {
         arc.seek(savepoint);
         return false;
@@ -34,7 +34,7 @@ bool load(Arc& arc, std::list<T, Alloc>& v, Arc& arc)
     const auto savepoint = arc.npos();
 
     std::size_t len;
-    if(!load<type::array>(arc, len))
+    if(!load_length<type::array>(arc, len))
     {
         arc.seek(savepoint);
         return false;

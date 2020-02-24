@@ -13,7 +13,7 @@ bool save(Arc& arc, const std::array<T, N>& v)
 {
     const auto savepoint = arc.npos();
 
-    if(!save<type::array>(arc, N))
+    if(!save_length<type::array>(arc, N))
     {
         arc.seek(savepoint);
         return false;
@@ -34,7 +34,7 @@ bool load(Arc& arc, std::array<T, N>& v)
 {
     const auto savepoint = arc.npos();
     std::size_t len;
-    if(!load<type::array>(arc, len) || len != N)
+    if(!load_length<type::array>(arc, len) || len != N)
     {
         arc.seek(savepoint);
         return false;

@@ -22,7 +22,8 @@ namespace detail
 template<type T> struct save_load_type_tag_impl;
 } // detail
 
-// This function is mainly for internal use. This only suports
+// This generates appropreate type tag and append length. These function only
+// supports the following type.
 // - str
 // - bin
 // - array
@@ -30,13 +31,13 @@ template<type T> struct save_load_type_tag_impl;
 // - ext
 
 template<type T, typename Arc>
-bool save(Arc& arc, const std::size_t len)
+bool save_length(Arc& arc, const std::size_t len)
 {
     return detail::save_load_type_tag_impl<T>::save_impl(arc, len);
 }
 
 template<type T, typename Arc>
-bool load(Arc& arc, std::size_t& len)
+bool load_length(Arc& arc, std::size_t& len)
 {
     return detail::save_load_type_tag_impl<T>::load_impl(arc, len);
 }

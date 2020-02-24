@@ -13,7 +13,7 @@ bool save(Arc& arc, const std::unordered_map<Key, T, Hash, Pred, Alloc>& v)
 {
     const auto savepoint = arc.npos();
 
-    if(!save<type::map>(arc, v.size()))
+    if(!save_length<type::map>(arc, v.size()))
     {
         arc.seek(savepoint);
         return false;
@@ -41,7 +41,7 @@ bool load(Arc& arc, std::unordered_map<Key, T, Hash, Pred, Alloc>& v)
     const auto savepoint = arc.npos();
 
     std::size_t len;
-    if(!load<type::array>(arc, len))
+    if(!load_length<type::array>(arc, len))
     {
         arc.seek(savepoint);
         return false;
