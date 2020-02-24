@@ -3,6 +3,7 @@ set(TEST_NAMES
     test_integer
     test_floating
     test_string
+    test_array
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
