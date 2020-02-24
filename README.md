@@ -75,6 +75,8 @@ int main()
 
 ## Archiver requirements
 
+By implementing an archive
+
 ### Writable archiver requiremnets
 
 ```cpp
@@ -83,6 +85,7 @@ class write_archive
   public:
 
     // Return an iterator through which the binary will be written.
+    // iterator value_type should be a `char`.
     Iterator sink() noexcept;
 
     // Check if we can write some bytes in to the buffer.
@@ -110,6 +113,7 @@ class read_archive
   public:
 
     // Return an iterator through which the binary will be read.
+    // iterator value_type should be a `char`.
     Iterator src() const noexcept;
 
     // Check if we can read some bytes in to the buffer.
