@@ -127,6 +127,7 @@ struct save_load_type_tag_impl<type::bin>
     template<typename Arc>
     static bool save_impl(Arc& arc, const std::size_t len)
     {
+        const auto savepoint = arc.npos();
         if(len <= 0xFF)
         {
             if(!save(arc, tag::bin8)) {return false;}
@@ -193,6 +194,7 @@ struct save_load_type_tag_impl<type::array>
     template<typename Arc>
     static bool save_impl(Arc& arc, const std::size_t len)
     {
+        const auto savepoint = arc.npos();
         if(len < 16)
         {
             const std::uint8_t t = static_cast<std::uint8_t>(tag::fixarray_lower) +
@@ -208,7 +210,7 @@ struct save_load_type_tag_impl<type::array>
             if(!save(arc, tag::array16)) {return false;}
 
             const std::uint16_t sz = len;
-            if(!to_big_endian(sz, arc))
+            if(!to_big_endian(arc, sz))
             {
                 arc.seek(savepoint);
                 return false;
@@ -244,7 +246,7 @@ struct save_load_type_tag_impl<type::array>
         if(        static_cast<std::uint8_t>(tag::fixarray_lower) <= byte &&
            byte <= static_cast<std::uint8_t>(tag::fixarray_upper))
         {
-            len = byte - static_cast<std::uint8_t>(tag::fixarray_lower));
+            len = byte - static_cast<std::uint8_t>(tag::fixarray_lower);
         }
         else if(t == tag::array16)
         {
@@ -356,43 +358,43 @@ struct save_load_type_tag_impl<type::ext>
     static bool save_impl(Arc& arc, const std::size_t len)
     {
         const auto savepoint = arc.npos();
-        if(len_bytes == 1)
+        if(len == 1)
         {
             if(!save(arc, tag::fixext1))   {                     return false;}
         }
-        else if(len_bytes == 2)
+        else if(len == 2)
         {
             if(!save(arc, tag::fixext2))   {                     return false;}
         }
-        else if(len_bytes == 4)
+        else if(len == 4)
         {
             if(!save(arc, tag::fixext4))   {                     return false;}
         }
-        else if(len_bytes == 8)
+        else if(len == 8)
         {
             if(!save(arc, tag::fixext8))   {                     return false;}
         }
-        else if(len_bytes == 16)
+        else if(len == 16)
         {
             if(!save(arc, tag::fixext16))  {                     return false;}
         }
-        else if(len_bytes <= 0xFF)
+        else if(len <= 0xFF)
         {
-            const std::uint8_t len = len_bytes;
-            if(!save(arc, tag::ext8))      {                     return false;}
-            if(!to_big_endian(arc, len))   {arc.seek(savepoint); return false;}
+            const std::uint8_t l = len;
+            if(!save(arc, tag::ext8))  {                     return false;}
+            if(!to_big_endian(arc, l)) {arc.seek(savepoint); return false;}
         }
-        else if(len_bytes <= 0xFFFF)
+        else if(len <= 0xFFFF)
         {
-            const std::uint16_t len = len_bytes;
-            if(!save(arc, tag::ext16))     {                     return false;}
-            if(!to_big_endian(arc, len))   {arc.seek(savepoint); return false;}
+            const std::uint16_t l = len;
+            if(!save(arc, tag::ext16)) {                     return false;}
+            if(!to_big_endian(arc, l)) {arc.seek(savepoint); return false;}
         }
-        else if(len_bytes <= 0xFFFFFFFF)
+        else if(len <= 0xFFFFFFFF)
         {
-            const std::uint32_t len = len_bytes;
-            if(!save(arc, tag::ext32))     {                     return false;}
-            if(!to_big_endian(arc, len))   {arc.seek(savepoint); return false;}
+            const std::uint32_t l = len;
+            if(!save(arc, tag::ext32)) {                     return false;}
+            if(!to_big_endian(arc, l)) {arc.seek(savepoint); return false;}
         }
         return true;
     }
