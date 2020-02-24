@@ -1,7 +1,7 @@
 #ifndef WAD_TUPLE_HPP
 #define WAD_TUPLE_HPP
 #include "binary_cast.hpp"
-#include "tag.hpp"
+#include "tuple.hpp"
 #include <utility>
 #include <tuple>
 
@@ -54,40 +54,9 @@ bool save(Arc& arc, const std::tuple<Ts...>& v)
     constexpr std::size_t size = sizeof...(Ts);
     const auto savepoint = arc.npos();
 
-    if(size < 16)
+    if(!save<type::array>(arc, size))
     {
-        const std::uint8_t t = static_cast<std::uint8_t>(tag::fixarray_lower) +
-                               static_cast<std::uint8_t>(size);
-        if(!save(arc, static_cast<tag>(t)))
-        {
-            arc.seek(savepoint);
-            return false;
-        }
-    }
-    else if(size <= 0xFFFF)
-    {
-        if(!save(arc, tag::array16)) {return false;}
-
-        const std::uint16_t sz = size;
-        if(!to_big_endian(arc, sz))
-        {
-            arc.seek(savepoint);
-            return false;
-        }
-    }
-    else if(size <= 0xFFFFFFFF)
-    {
-        if(!save(arc, tag::array32)) {return false;}
-
-        const std::uint32_t sz = size;
-        if(!to_big_endian(arc, sz))
-        {
-            arc.seek(savepoint);
-            return false;
-        }
-    }
-    else
-    {
+        arc.seek(savepoint);
         return false;
     }
     return detail::save_tuple_impl<0>(arc, v, savepoint);
@@ -99,40 +68,8 @@ bool load(Arc& arc, std::tuple<Ts...>& v)
     constexpr std::size_t size = sizeof...(Ts);
     const auto savepoint = arc.npos();
 
-    tag t;
-    if(!load(arc, t)) {return false;}
-
-    const auto byte = static_cast<std::uint8_t>(t);
-    if(        static_cast<std::uint8_t>(tag::fixarray_lower) <= byte &&
-       byte <= static_cast<std::uint8_t>(tag::fixarray_upper))
-    {
-        if(byte - static_cast<std::uint8_t>(tag::fixarray_lower) != size)
-        {
-            arc.seek(savepoint);
-            return false;
-        }
-    }
-    else if(t == tag::array16)
-    {
-        std::uint16_t sz = 0;
-        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-        if(size != sz)
-        {
-            arc.seek(savepoint);
-            return false;
-        }
-    }
-    else if(t == tag::array32)
-    {
-        std::uint32_t sz = 0;
-        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-        if(size != sz)
-        {
-            arc.seek(savepoint);
-            return false;
-        }
-    }
-    else
+    std::size_t len;
+    if(!load<type::array>(arc, len) || len != size)
     {
         arc.seek(savepoint);
         return false;

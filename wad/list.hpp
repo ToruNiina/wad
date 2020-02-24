@@ -1,7 +1,7 @@
 #ifndef WAD_LIST_HPP
 #define WAD_LIST_HPP
 #include "binary_cast.hpp"
-#include "tag.hpp"
+#include "type.hpp"
 #include <utility>
 #include <list>
 
@@ -12,44 +12,11 @@ template<typename T, typename Alloc, typename Arc>
 bool save(Arc& arc, const std::list<T, Alloc>& v)
 {
     const auto savepoint = arc.npos();
-
-    if(v.size() < 16)
+    if(!save<type::array>(arc, v.size()))
     {
-        const std::uint8_t t = static_cast<std::uint8_t>(tag::fixarray_lower) +
-                               static_cast<std::uint8_t>(v.size());
-        if(!save(arc, static_cast<tag>(t)))
-        {
-            arc.seek(savepoint);
-            return false;
-        }
-    }
-    else if(v.size() <= 0xFFFF)
-    {
-        if(!save(arc, tag::array16)) {return false;}
-
-        const std::uint16_t sz = v.size();
-        if(!to_big_endian(arc, sz))
-        {
-            arc.seek(savepoint);
-            return false;
-        }
-    }
-    else if(v.size() <= 0xFFFFFFFF)
-    {
-        if(!save(arc, tag::array32)) {return false;}
-
-        const std::uint32_t sz = v.size();
-        if(!to_big_endian(arc, sz))
-        {
-            arc.seek(savepoint);
-            return false;
-        }
-    }
-    else
-    {
+        arc.seek(savepoint);
         return false;
     }
-
     for(const auto& elem : v)
     {
         if(!save(arc, elem))
@@ -66,32 +33,13 @@ bool load(Arc& arc, std::list<T, Alloc>& v, Arc& arc)
 {
     const auto savepoint = arc.npos();
 
-    tag t;
-    if(!load(arc, t)) {return false;}
-
-    const auto byte = static_cast<std::uint8_t>(t);
-    if(        static_cast<std::uint8_t>(tag::fixarray_lower) <= byte &&
-       byte <= static_cast<std::uint8_t>(tag::fixarray_upper))
-    {
-        v.resize(byte - static_cast<std::uint8_t>(tag::fixarray_lower));
-    }
-    else if(t == tag::array16)
-    {
-        std::uint16_t sz = 0;
-        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-        v.resize(sz);
-    }
-    else if(t == tag::array32)
-    {
-        std::uint32_t sz = 0;
-        if(!from_big_endian(arc, sz)) {arc.seek(savepoint); return false;}
-        v.resize(sz);
-    }
-    else
+    std::size_t len;
+    if(!load<type::array>(arc, len))
     {
         arc.seek(savepoint);
         return false;
     }
+    v.resize(len);
 
     for(auto& elem : v)
     {
