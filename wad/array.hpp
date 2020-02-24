@@ -1,7 +1,6 @@
 #ifndef WAD_ARRAY_HPP
 #define WAD_ARRAY_HPP
 #include "binary_cast.hpp"
-#include "tag.hpp"
 #include "type.hpp"
 #include <utility>
 #include <array>
