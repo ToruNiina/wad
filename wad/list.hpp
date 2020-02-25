@@ -29,7 +29,7 @@ bool save(Arc& arc, const std::list<T, Alloc>& v)
 }
 
 template<typename T, typename Alloc, typename Arc>
-bool load(Arc& arc, std::list<T, Alloc>& v, Arc& arc)
+bool load(Arc& arc, std::list<T, Alloc>& v)
 {
     const auto savepoint = arc.npos();
 
