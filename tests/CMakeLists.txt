@@ -15,6 +15,7 @@ set(TEST_NAMES
     test_pair
     test_tuple
     test_random
+    test_tag
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
