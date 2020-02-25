@@ -4,6 +4,8 @@ set(TEST_NAMES
     test_floating
     test_string
     test_array
+    test_vector
+    test_deque
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
