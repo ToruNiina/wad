@@ -3,6 +3,7 @@
 #include "binary_cast.hpp"
 #include "type.hpp"
 #include <utility>
+#include <iterator>
 #include <forward_list>
 
 namespace wad
@@ -13,7 +14,8 @@ bool save(Arc& arc, const std::forward_list<T, Alloc>& v)
 {
     const auto savepoint = arc.npos();
 
-    if(!save_length<type::array>(arc, v.size()))
+    const std::size_t len = std::distance(v.begin(), v.end());
+    if(!save_length<type::array>(arc, len))
     {
         arc.seek(savepoint);
         return false;
@@ -33,9 +35,6 @@ template<typename T, typename Alloc, typename Arc>
 bool load(Arc& arc, std::forward_list<T, Alloc>& v)
 {
     const auto savepoint = arc.npos();
-
-    tag t;
-    if(!load(arc, t)) {return false;}
 
     std::size_t len;
     if(!load_length<type::array>(arc, len))
