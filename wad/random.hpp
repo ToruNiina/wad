@@ -2,6 +2,7 @@
 #define WAD_RANDOM_HPP
 #include "binary_cast.hpp"
 #include "tag.hpp"
+#include "string.hpp"
 #include <utility>
 #include <random>
 #include <sstream>
@@ -46,7 +47,7 @@ bool load_rng(Arc& arc, RNG& v, const std::string& ref_name)
     const auto savepoint = arc.npos();
 
     tag t;
-    if(!load(arc, t, arc)) {return false;}
+    if(!load(arc, t)) {return false;}
     const std::uint8_t expected =
         static_cast<std::uint8_t>(tag::fixmap_lower) + 2;
 
