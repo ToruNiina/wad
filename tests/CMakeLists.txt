@@ -8,6 +8,8 @@ set(TEST_NAMES
     test_deque
     test_list
     test_forward_list
+    test_set
+    test_unordered_set
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
