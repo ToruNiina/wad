@@ -14,6 +14,7 @@ set(TEST_NAMES
     test_unordered_map
     test_pair
     test_tuple
+    test_random
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
