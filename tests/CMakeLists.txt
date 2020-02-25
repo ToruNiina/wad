@@ -6,6 +6,8 @@ set(TEST_NAMES
     test_array
     test_vector
     test_deque
+    test_list
+    test_forward_list
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
