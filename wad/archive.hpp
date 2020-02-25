@@ -4,6 +4,8 @@
 
 namespace wad
 {
+// ---------------------------------------------------------------------------
+// archive(arc, T) that works as both save and load.
 
 template<typename Arc, typename T>
 // arc.sink() is valid, arc.src() is not valid, & arg.archive(arc) isn't defined

@@ -23,10 +23,14 @@ load(Arc& arc, T& v)
 }
 
 // ---------------------------------------------------------------------------
-// support v.archive(arc);
+// support v.archive(arc).
+//
+// if v has v.archive(arc) method instead of v.save/load, call v.archive from
+// wad::save() and wad::load().
 
 template<typename T, typename Arc>
-typename std::enable_if<detail::conjunction<has_write_archive_method<T>,
+typename std::enable_if<detail::conjunction<
+    has_write_archive_method<T>, detail::negation<has_save_method<T>>,
     has_sink_method<Arc>, detail::negation<has_src_method<Arc>>
     >::value, bool>::type
 save(Arc& arc, T& v)
@@ -35,7 +39,8 @@ save(Arc& arc, T& v)
 }
 
 template<typename T, typename Arc>
-typename std::enable_if<detail::conjunction<has_read_archive_method<T>,
+typename std::enable_if<detail::conjunction<
+    has_read_archive_method<T>, detail::negation<has_load_method<T>>,
     detail::negation<has_sink_method<Arc>>, has_src_method<Arc>
     >::value, bool>::type
 load(Arc& arc, T& v)
