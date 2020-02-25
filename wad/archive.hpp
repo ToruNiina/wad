@@ -1,5 +1,6 @@
 #ifndef WAD_ARCHIVE_HPP
 #define WAD_ARCHIVE_HPP
+#include "type_traits.hpp"
 #include <vector>
 #include <iterator>
 #include <fstream>
@@ -131,41 +132,27 @@ class read_archive
     std::vector<std::uint8_t>::const_iterator iter_;
 };
 
-namespace detail
-{
-template<typename T, typename T::src_iterator (T::*ptr)() const = &T::src>
-std::true_type  has_src_method_impl(T*);
-template<typename T, typename T::src_iterator (T::*ptr)() = &T::src>
-std::true_type  has_src_method_impl(T*);
-template<typename T>
-std::false_type has_src_method_impl(...);
-
-template<typename T, typename T::sink_iterator (T::*ptr)() const = &T::sink>
-std::true_type  has_sink_method_impl(T*);
-template<typename T, typename T::sink_iterator (T::*ptr)() = &T::sink>
-std::true_type  has_sink_method_impl(T*);
-template<typename T>
-std::false_type has_sink_method_impl(...);
-} // detail
-
-template<typename T>
-struct has_sink_method : decltype(detail::has_sink_method_impl<T>(nullptr)) {};
-template<typename T>
-struct has_src_method  : decltype(detail::has_src_method_impl <T>(nullptr)) {};
-
-static_assert(has_sink_method<write_archive>::value, "");
-static_assert(has_src_method <read_archive >::value, "");
+static_assert( has_sink_method<write_archive>::value, "");
+static_assert(!has_src_method <write_archive>::value, "");
+static_assert(!has_sink_method<read_archive >::value, "");
+static_assert( has_src_method <read_archive >::value, "");
 
 template<typename Arc, typename T>
-typename std::enable_if<
-    has_sink_method<Arc>::value && !has_src_method<Arc>::value, bool>::type
+// arc.sink() is valid, arc.src() is not valid, & arg.archive(arc) isn't defined
+typename std::enable_if<detail::conjunction<
+    has_sink_method<Arc>, detail::negation<has_src_method<Arc>>
+    detail::negation<has_write_archive_method<T>>,
+    >::value, bool>::type
 archive(Arc& arc, T& arg)
 {
     return save(arc, arg);
 }
 template<typename Arc, typename T>
-typename std::enable_if<
-    !has_sink_method<Arc>::value && has_src_method<Arc>::value, bool>::type
+// arc.src() is valid, arc.sink() is not valid, & arg.archive(arc) isn't defined
+typename std::enable_if<detail::conjunction<
+    has_src_method<Arc>, detail::negation<has_sink_method<Arc>>
+    detail::negation<has_read_archive_method<T>>,
+    >::value, bool>::type
 archive(Arc& arc, T& arg)
 {
     return load(arc, arg);

@@ -95,5 +95,30 @@ struct has_write_archive_method: decltype(detail::has_write_archive_method_impl<
 template<typename T>
 struct has_read_archive_method : decltype(detail::has_write_archive_method_impl<T>(nullptr)) {};
 
+// ----------------------------------------------------------------------------
+// has_src_method, has_sink_method for archive classes
+
+namespace detail
+{
+template<typename T, typename T::src_iterator (T::*ptr)() const = &T::src>
+std::true_type  has_src_method_impl(T*);
+template<typename T, typename T::src_iterator (T::*ptr)() = &T::src>
+std::true_type  has_src_method_impl(T*);
+template<typename T>
+std::false_type has_src_method_impl(...);
+
+template<typename T, typename T::sink_iterator (T::*ptr)() const = &T::sink>
+std::true_type  has_sink_method_impl(T*);
+template<typename T, typename T::sink_iterator (T::*ptr)() = &T::sink>
+std::true_type  has_sink_method_impl(T*);
+template<typename T>
+std::false_type has_sink_method_impl(...);
+} // detail
+
+template<typename T>
+struct has_sink_method : decltype(detail::has_sink_method_impl<T>(nullptr)) {};
+template<typename T>
+struct has_src_method  : decltype(detail::has_src_method_impl <T>(nullptr)) {};
+
 } // wad
 #endif// WAD_TYPE_TRAITS_HPP
