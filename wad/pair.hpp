@@ -13,7 +13,7 @@ bool save(Arc& arc, const std::pair<T1, T2>& v)
     const auto savepoint = arc.npos();
 
     const std::uint8_t t = static_cast<std::uint8_t>(tag::fixarray_lower) + 2u;
-    if(!save(arc, static_cast<tag>(t))
+    if(!save(arc, static_cast<tag>(t)))
     {
         arc.seek(savepoint);
         return false;
