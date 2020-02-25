@@ -41,7 +41,7 @@ bool load(Arc& arc, std::map<Key, T, Compare, Alloc>& v)
     const auto savepoint = arc.npos();
 
     std::size_t len;
-    if(!load_length<type::array>(arc, len))
+    if(!load_length<type::map>(arc, len))
     {
         arc.seek(savepoint);
         return false;
