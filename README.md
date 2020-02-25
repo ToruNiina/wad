@@ -75,7 +75,7 @@ int main()
 
 ## Archiver requirements
 
-By implementing an archive
+You can implement your own archive class.
 
 ### Writable archiver requiremnets
 
@@ -83,6 +83,8 @@ By implementing an archive
 class write_archive
 {
   public:
+    // return type of sink.
+    using sink_iterator = Iterator;
 
     // Return an iterator through which the binary will be written.
     // iterator value_type should be a `char`.
@@ -111,6 +113,9 @@ class write_archive
 class read_archive
 {
   public:
+
+    // return type of sink.
+    using src_iterator = Iterator;
 
     // Return an iterator through which the binary will be read.
     // iterator value_type should be a `char`.

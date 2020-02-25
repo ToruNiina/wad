@@ -11,6 +11,7 @@ namespace wad
 class write_archive
 {
   public:
+    using sink_iterator = std::back_insert_iterator<std::vector<std::uint8_t>>;
 
     // return an iterator through which the binary will be written.
     //
@@ -70,6 +71,7 @@ class write_archive
 class read_archive
 {
   public:
+    using src_iterator = std::vector<std::uint8_t>::const_iterator;
 
     explicit read_archive(const std::string& filename)
     {
