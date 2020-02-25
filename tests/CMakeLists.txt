@@ -10,6 +10,7 @@ set(TEST_NAMES
     test_forward_list
     test_set
     test_unordered_set
+    test_map
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
