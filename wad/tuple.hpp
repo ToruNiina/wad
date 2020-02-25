@@ -1,7 +1,7 @@
 #ifndef WAD_TUPLE_HPP
 #define WAD_TUPLE_HPP
 #include "binary_cast.hpp"
-#include "tuple.hpp"
+#include "type.hpp"
 #include <utility>
 #include <tuple>
 
