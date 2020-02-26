@@ -62,7 +62,7 @@ and [cereal](https://uscilab.github.io/cereal/).
 ## Motivation
 
 **wad** does not intend to be a general-purpose msgpack parser. It directly
-serialize your class into and deserialize your class from msgpack, without
+serializes your class into and deserializes your class from msgpack, without
 any internal representation.
 
 **wad** does not plan to be a multi-format serializer. It uses msgpack only.
