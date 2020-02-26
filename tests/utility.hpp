@@ -2,6 +2,7 @@
 #define WAD_TEST_UTILITY_HPP
 #include <vector>
 #include <cstdint>
+#include "wad/archive.hpp"
 
 namespace wad
 {
@@ -92,6 +93,32 @@ U save_load_convert(const T& t)
     U retval;
     test_read_archive rarc(warc);
     load(rarc, retval);
+
+    return retval;
+}
+
+template<typename T>
+T archive_save_load(const T& t)
+{
+    test_write_archive warc;
+    archive(warc, t);
+
+    T retval;
+    test_read_archive rarc(warc);
+    archive(rarc, retval);
+
+    return retval;
+}
+
+template<typename U, typename T>
+U archive_convert(const T& t)
+{
+    test_write_archive warc;
+    archive(warc, t);
+
+    U retval;
+    test_read_archive rarc(warc);
+    archive(rarc, retval);
 
     return retval;
 }
