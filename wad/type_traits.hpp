@@ -1,5 +1,6 @@
 #ifndef WAD_TYPE_TRAITS_HPP
 #define WAD_TYPE_TRAITS_HPP
+#include "default_archiver.hpp"
 #include <type_traits>
 
 namespace wad
@@ -119,6 +120,11 @@ template<typename T>
 struct has_sink_method : decltype(detail::has_sink_method_impl<T>(nullptr)) {};
 template<typename T>
 struct has_src_method  : decltype(detail::has_src_method_impl <T>(nullptr)) {};
+
+static_assert( has_sink_method<write_archive>::value, "");
+static_assert(!has_src_method <write_archive>::value, "");
+static_assert(!has_sink_method<read_archive >::value, "");
+static_assert( has_src_method <read_archive >::value, "");
 
 } // wad
 #endif// WAD_TYPE_TRAITS_HPP

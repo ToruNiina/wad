@@ -1,6 +1,5 @@
 #ifndef WAD_DEFAULT_ARCHIVER_HPP
 #define WAD_DEFAULT_ARCHIVER_HPP
-#include "type_traits.hpp"
 #include <vector>
 #include <iterator>
 #include <fstream>
@@ -131,11 +130,6 @@ class read_archive
     std::vector<std::uint8_t> buffer_;
     std::vector<std::uint8_t>::const_iterator iter_;
 };
-
-static_assert( has_sink_method<write_archive>::value, "");
-static_assert(!has_src_method <write_archive>::value, "");
-static_assert(!has_sink_method<read_archive >::value, "");
-static_assert( has_src_method <read_archive >::value, "");
 
 } // wad
 #endif//WAD_DEFAULT_ARCHIVER_HPP
