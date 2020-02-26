@@ -8,6 +8,7 @@ namespace wad
 class test_write_archive
 {
   public:
+    using sink_iterator = std::back_insert_iterator<std::vector<std::uint8_t>>;
 
     std::back_insert_iterator<std::vector<std::uint8_t>>
     sink() noexcept {return std::back_inserter(buffer_);}
@@ -38,6 +39,8 @@ class test_write_archive
 
 struct test_read_archive
 {
+  public:
+    using src_iterator = std::vector<std::uint8_t>::const_iterator;
     test_read_archive(const test_write_archive& wa)
         : buffer_(wa.buffer()), iter_(buffer_.begin())
     {}
@@ -92,7 +95,6 @@ U save_load_convert(const T& t)
 
     return retval;
 }
-
 
 } // wad
 #endif// WAD_TEST_UTILITY_HPP
