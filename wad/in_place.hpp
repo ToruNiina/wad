@@ -1,5 +1,5 @@
-#ifndef WAD_HELPER_HPP
-#define WAD_HELPER_HPP
+#ifndef WAD_IN_PLACE_HPP
+#define WAD_IN_PLACE_HPP
 #include "type.hpp"
 #include "boolean.hpp"
 #include "integer.hpp"
@@ -567,7 +567,6 @@ struct save_load_util<type::ext>
     }
 };
 
-
 } // detail
 } // wad
-#endif// WAD_HELPER_HPP
+#endif// WAD_IN_PLACE_HPP
