@@ -107,7 +107,14 @@ file, you can save/load it into/from msgpack.
 
 ## Archiver requirements
 
-You can implement your own archive class.
+You can use your own archive class in `wad::save`, `wad::load`, `wad::archive`
+functions.
+
+Note: `wad::archive(arc, ...)` function checks if `arc` has `sink()` or `src()`
+method and dispatch `save(arc, ...)` or `load(arc, ...)` depending on the
+provided member method. If `arc` supports both, the overload resolution becomes
+ambiguous. To use `wad::archive` method with your archiver, it should have only
+one of those member methods.
 
 ### Writable archiver requiremnets
 
