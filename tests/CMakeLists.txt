@@ -16,6 +16,7 @@ set(TEST_NAMES
     test_tuple
     test_random
     test_tag
+    test_in_place
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
