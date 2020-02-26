@@ -1,6 +1,5 @@
-#ifndef WAD_EXTENSIONS_HPP
-#define WAD_EXTENSIONS_HPP
-#include "archive.hpp"
+#ifndef WAD_INTERFACE_HPP
+#define WAD_INTERFACE_HPP
 #include "type_traits.hpp"
 
 namespace wad
@@ -49,4 +48,4 @@ load(Arc& arc, T& v)
 }
 
 } // wad
-#endif// WAD_EXTENSIONS_HPP
+#endif// WAD_INTERFACE_HPP
