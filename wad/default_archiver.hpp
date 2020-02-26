@@ -1,5 +1,5 @@
-#ifndef WAD_DEFAULT_ARCHIVES_HPP
-#define WAD_DEFAULT_ARCHIVES_HPP
+#ifndef WAD_DEFAULT_ARCHIVER_HPP
+#define WAD_DEFAULT_ARCHIVER_HPP
 #include "type_traits.hpp"
 #include <vector>
 #include <iterator>
@@ -138,4 +138,4 @@ static_assert(!has_sink_method<read_archive >::value, "");
 static_assert( has_src_method <read_archive >::value, "");
 
 } // wad
-#endif//WAD_DEFAULT_ARCHIVES_HPP
+#endif//WAD_DEFAULT_ARCHIVER_HPP
