@@ -22,8 +22,12 @@ set(TEST_NAMES
 foreach(TEST_NAME ${TEST_NAMES})
     add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
 
-    set_target_properties(${TEST_NAME} PROPERTIES
-        COMPILE_FLAGS "${MJOLNIR_WARNING_FLAGS} -O2")
+    if(WAD_TEST_COVERAGE)
+        target_compile_options(${TEST_NAME} PRIVATE "-Og" PRIVATE "-g" PRIVATE "--coverage")
+        target_link_options(${TEST_NAME} PRIVATE "--coverage")
+    else()
+        target_compile_options(${TEST_NAME} PRIVATE "-O2")
+    endif()
 
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME}
              WORKING_DIRECTORY ${PROJECT_BINARY_DIR})

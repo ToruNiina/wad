@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD          11)
 set(CMAKE_CXX_EXTENSIONS       OFF)
 
+option(WAD_TEST_COVERAGE "collecting test coverage" OFF)
+
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extlib")
     execute_process(COMMAND mkdir extlib WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 endif()
