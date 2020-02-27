@@ -57,6 +57,7 @@ and [cereal](https://uscilab.github.io/cereal/).
 - [User-defined Class](#user-defined-class)
 - [Subclass](#subclass)
 - [Archiver Requirements](#archiver-requirements)
+- [References](#references)
 - [Licensing Terms](#licensing-terms)
 
 ## Motivation
@@ -97,13 +98,88 @@ file, you can save/load it into/from msgpack.
 
 ## User-defined Class
 
+By defining one of the following member or non-member functions,
+you can serialize your class to msgpack with **wad**.
+
 ### archive() method
+
+`archive` method works in both ways, save and load, depending on the archiver
+passed.
+
+Because it loads and changes the state of `*this` object, it must not be
+marked as `const`.
+
+```cpp
+struct X
+{
+    std::string  a;
+    double       b;
+    std::int32_t c;
+
+    template<typename Archiver>
+    bool archive(Archiver& arc)
+    {
+        return wad::archive<wad::type::map>("a", a, "b", b, "c", c);
+    }
+};
+```
 
 ### save() and load() methods
 
+You can split `save` and `load` function.
+
+Because `save` function does not change the state of `*this` object, it must be
+marked as `const`. On the other hand, `load` must not be marked as `const`.
+
+```cpp
+struct X
+{
+    std::string  a;
+    double       b;
+    std::int32_t c;
+
+    template<typename Archiver>
+    bool save(Archiver& arc) const
+    {
+        return wad::save<wad::type::map>("a", a, "b", b, "c", c);
+    }
+    template<typename Archiver>
+    bool load(Archiver& arc)
+    {
+        return wad::load<wad::type::map>("a", a, "b", b, "c", c);
+    }
+};
+```
+
 ### Non-intrusive save() and load() methods
 
+**wad** can find `save` and `load` function through argument dependent lookup (ADL).
+By defining `save` and `load` function in your `namespace`, **wad** calls them.
+
+```cpp
+namespace foo {
+struct X
+{
+    std::string  a;
+    double       b;
+    std::int32_t c;
+};
+template<typename Archiver>
+bool save(Archiver& arc, const X& x)
+{
+    return wad::save<wad::type::map>("a", x.a, "b", x.b, "c", x.c);
+}
+template<typename Archiver>
+bool load(Archiver& arc, X& x)
+{
+    return wad::save<wad::type::map>("a", x.a, "b", x.b, "c", x.c);
+}
+} // namespace foo
+```
+
 ## Subclass
+
+
 
 ## Archiver requirements
 
@@ -178,6 +254,8 @@ class read_archive
 ```
 
 ### Binding your archiver to the polymorphic loader
+
+## Reference
 
 ## Licensing terms
 
