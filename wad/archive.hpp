@@ -28,5 +28,24 @@ archive(Arc& arc, T& arg)
     return load(arc, arg);
 }
 
+template<typename Arc, typename T>
+typename std::enable_if<detail::conjunction<
+    has_sink_method<Arc>, detail::negation<has_src_method<Arc>>,
+    has_write_archive_method<T>
+    >::value, bool>::type
+archive(Arc& arc, T& arg)
+{
+    return arg.archive(arc);
+}
+
+template<typename Arc, typename T>
+typename std::enable_if<detail::conjunction<
+    has_src_method<Arc>, detail::negation<has_sink_method<Arc>>,
+    has_read_archive_method<T>
+    >::value, bool>::type
+archive(Arc& arc, T& arg)
+{
+    return arg.archive(arc);
+}
 } // wad
 #endif//WAD_ARCHIVE_HPP
