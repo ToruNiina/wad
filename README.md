@@ -179,7 +179,67 @@ bool load(Archiver& arc, X& x)
 
 ## Subclass
 
+Currently, loading a polymorphic type through `archive` method is not supported.
 
+To save the state of the base class, pass `base_of<Base>(this)` to `wad::save`
+and `load` function. It should be passed as the second argument, immediately
+after `archiver`.
+
+```cpp
+struct Base
+{
+    std::string  s;
+    virtual ~Base() = default;
+
+    template<typename Arc>
+    bool save(Arc& arc) const
+    {
+        return wad::save<wad::type::map>(arc, "s", s);
+    }
+    template<typename Arc>
+    bool load(Arc& arc)
+    {
+        return wad::load<wad::type::map>(arc, "s", s);
+    }
+};
+
+struct Derived : Base
+{
+    std::int32_t i;
+    double       d;
+    ~Derived() override = default;
+
+    template<typename Arc>
+    bool save(Arc& arc) const
+    {
+        return wad::save<wad::type::map>(arc,
+                wad::base_of<Base>(this), "i", i, "d", d);
+    }
+    template<typename Arc>
+    bool load(Arc& arc)
+    {
+        return wad::load<wad::type::map>(arc,
+                wad::base_of<Base>(this), "i", i, "d", d);
+    }
+};
+```
+
+To load `Derived` through `Base`, you need to tell the relationship to the
+polymorphic loader and define the name of the derived type.
+To achieve that, specialize the following class.
+
+```cpp
+namespace wad {
+template<>
+struct register_subclass<extlib::Base, extlib::Derived>
+{
+    static constexpr const char* name() noexcept {return "extlib::Derived";}
+    static const registered<extlib::Base, extlib::Derived> bound;
+};
+const registered<extlib::Base, extlib::Derived>
+    register_subclass<extlib::Base, extlib::Derived>::bound;
+} /* wad */
+```
 
 ## Archiver requirements
 
@@ -254,6 +314,25 @@ class read_archiver
 ```
 
 ### Binding your archiver to the polymorphic loader
+
+To use your archiver with a polymorphic class, you need to bind them explicitly
+to subclass relationships. By specifying your archiver as type arguments of
+`bind_archivers` that will be passed to the `registere_subclass::bound`, the
+polymorphic loader will recognize your archiver.
+
+```cpp
+namespace wad {
+template<>
+struct register_subclass<extlib::Base, extlib::Derived>
+{
+    static constexpr const char* name() noexcept {return "extlib::Derived";}
+    static const registered<extlib::Base, extlib::Derived> bound;
+};
+const registered<extlib::Base, extlib::Derived>
+    register_subclass<extlib::Base, extlib::Derived>::bound(
+        bind_archivers<your_write_archiver, your_read_archiver>{});
+} /* wad */
+```
 
 ## Reference
 
