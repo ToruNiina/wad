@@ -1,7 +1,5 @@
 # wad
 
-**This repository is under development.**
-
 serialize/deserialize into/from msgpack.
 
 ```cpp
