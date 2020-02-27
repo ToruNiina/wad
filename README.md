@@ -119,7 +119,7 @@ struct X
     template<typename Archiver>
     bool archive(Archiver& arc)
     {
-        return wad::archive<wad::type::map>("a", a, "b", b, "c", c);
+        return wad::archive<wad::type::map>(arc, "a", a, "b", b, "c", c);
     }
 };
 ```
@@ -141,20 +141,20 @@ struct X
     template<typename Archiver>
     bool save(Archiver& arc) const
     {
-        return wad::save<wad::type::map>("a", a, "b", b, "c", c);
+        return wad::save<wad::type::map>(arc, "a", a, "b", b, "c", c);
     }
     template<typename Archiver>
     bool load(Archiver& arc)
     {
-        return wad::load<wad::type::map>("a", a, "b", b, "c", c);
+        return wad::load<wad::type::map>(arc, "a", a, "b", b, "c", c);
     }
 };
 ```
 
 ### Non-intrusive save() and load() methods
 
-**wad** can find `save` and `load` function through argument dependent lookup (ADL).
-By defining `save` and `load` function in your `namespace`, **wad** calls them.
+**wad** finds `save` and `load` function through argument dependent lookup (ADL).
+If you define `save` and `load` function in your `namespace`, **wad** calls them.
 
 ```cpp
 namespace foo {
@@ -167,12 +167,12 @@ struct X
 template<typename Archiver>
 bool save(Archiver& arc, const X& x)
 {
-    return wad::save<wad::type::map>("a", x.a, "b", x.b, "c", x.c);
+    return wad::save<wad::type::map>(arc, "a", x.a, "b", x.b, "c", x.c);
 }
 template<typename Archiver>
 bool load(Archiver& arc, X& x)
 {
-    return wad::save<wad::type::map>("a", x.a, "b", x.b, "c", x.c);
+    return wad::save<wad::type::map>(arc, "a", x.a, "b", x.b, "c", x.c);
 }
 } // namespace foo
 ```
@@ -195,7 +195,7 @@ one of those member methods.
 ### Writable archiver requiremnets
 
 ```cpp
-class write_archive
+class write_archiver
 {
   public:
     // return type of sink.
@@ -225,7 +225,7 @@ class write_archive
 ### Readable archiver requiremnets
 
 ```cpp
-class read_archive
+class read_archiver
 {
   public:
 
