@@ -17,6 +17,7 @@ set(TEST_NAMES
     test_random
     test_tag
     test_in_place
+    test_user_defined
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
