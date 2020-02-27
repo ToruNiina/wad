@@ -59,12 +59,12 @@ struct negation : std::integral_constant<bool, !static_cast<bool>(T::value)>{};
 namespace detail
 {
 // this also finds template member functions.
-template<typename T, bool (T::*ptr)(wad::write_archive&) const = &T::save>
+template<typename T, bool (T::*ptr)(wad::write_archiver&) const = &T::save>
 std::true_type  has_save_method_impl(T*);
 template<typename T>
 std::false_type has_save_method_impl(...);
 
-template<typename T, bool (T::*ptr)(wad::read_archive&) = &T::load>
+template<typename T, bool (T::*ptr)(wad::read_archiver&) = &T::load>
 std::true_type  has_load_method_impl(T*);
 template<typename T>
 std::false_type has_load_method_impl(...);
@@ -80,12 +80,12 @@ struct has_load_method : decltype(detail::has_load_method_impl<T>(nullptr)) {};
 
 namespace detail
 {
-template<typename T, bool (T::*ptr)(wad::write_archive&) = &T::archive>
+template<typename T, bool (T::*ptr)(wad::write_archiver&) = &T::archive>
 std::true_type  has_write_archive_method_impl(T*);
 template<typename T>
 std::false_type has_write_archive_method_impl(...);
 
-template<typename T, bool (T::*ptr)(wad::read_archive&) = &T::archive>
+template<typename T, bool (T::*ptr)(wad::read_archiver&) = &T::archive>
 std::true_type  has_read_archive_method_impl(T*);
 template<typename T>
 std::false_type has_read_archive_method_impl(...);
@@ -121,10 +121,10 @@ struct has_sink_method : decltype(detail::has_sink_method_impl<T>(nullptr)) {};
 template<typename T>
 struct has_src_method  : decltype(detail::has_src_method_impl <T>(nullptr)) {};
 
-static_assert( has_sink_method<write_archive>::value, "");
-static_assert(!has_src_method <write_archive>::value, "");
-static_assert(!has_sink_method<read_archive >::value, "");
-static_assert( has_src_method <read_archive >::value, "");
+static_assert( has_sink_method<write_archiver>::value, "");
+static_assert(!has_src_method <write_archiver>::value, "");
+static_assert(!has_sink_method<read_archiver >::value, "");
+static_assert( has_src_method <read_archiver >::value, "");
 
 } // wad
 #endif// WAD_TYPE_TRAITS_HPP

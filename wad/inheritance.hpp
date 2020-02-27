@@ -99,7 +99,7 @@ struct registered
 
     template<typename Factory>
     explicit registered(const Factory& init)
-        : registered(init, bind_archives<write_archive, read_archive>())
+        : registered(init, bind_archives<write_archiver, read_archiver>())
     {}
 
     template<typename ... Arcs>
@@ -147,7 +147,7 @@ struct registered
     static typename std::enable_if<!has_sink_method<Arc>::value>::type
     register_save()
     {
-        // If Arc does not have .sink() method, it is not a write_archive.
+        // If Arc does not have .sink() method, it is not a write_archiver.
         // just skip this.
         return;
     }
@@ -172,7 +172,7 @@ struct registered
     static typename std::enable_if<!has_src_method<Arc>::value>::type
     register_load(const Factory&)
     {
-        // If Arc does not have .src() method, it is not a read_archive.
+        // If Arc does not have .src() method, it is not a read_archiver.
         // just skip this.
         return;
     }
