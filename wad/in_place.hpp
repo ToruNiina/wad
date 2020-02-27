@@ -128,7 +128,7 @@ template<>
 struct save_load_util<type::nil>
 {
     template<typename Arc>
-    static bool invoke(Arc& arc) noexcept
+    static bool save_impl(Arc& arc) noexcept
     {
         return save(arc, tag::nil);
     }
@@ -154,7 +154,7 @@ struct save_load_util<type::boolean>
         return save(arc, v);
     }
     template<typename Arc>
-    static bool load_impl(Arc& arc, const bool v) noexcept
+    static bool load_impl(Arc& arc, bool& v) noexcept
     {
         return load(arc, v);
     }
@@ -188,7 +188,7 @@ struct save_load_util<type::floating>
         return save(arc, v);
     }
     template<typename T, typename Arc>
-    static bool load_impl(Arc& arc, const T v) noexcept
+    static bool load_impl(Arc& arc, T& v) noexcept
     {
         static_assert(std::is_floating_point<T>::value,
                       "type of an integer value should be an integer");
@@ -206,7 +206,7 @@ struct save_load_util<type::str>
     }
     template<typename traits, typename Alloc, typename Arc>
     static bool load_impl(Arc& arc,
-            const std::basic_string<char, traits, Alloc>& v) noexcept
+            std::basic_string<char, traits, Alloc>& v) noexcept
     {
         return load(arc, v);
     }
@@ -256,7 +256,7 @@ struct save_load_util<type::bin>
         const std::size_t len = len_bytes / sizeof(charT);
 
         std::vector<charT> buf(len);
-        std::copy_n(arc.src(), len_bytes, reinterpret_cast<char*>(v.data()));
+        std::copy_n(arc.src(), len_bytes, reinterpret_cast<char*>(buf.data()));
         arc.advance(len_bytes);
 
         v = std::basic_string<charT, traitsT, Alloc>(buf.data(), len);
@@ -341,10 +341,11 @@ struct save_load_util<type::array>
     template<typename Arc, typename T, typename ... Ts>
     static bool load_impl(Arc& arc, T& head, Ts& ... tail)
     {
-        constexpr std::size_t len = sizeof...(Ts) + 1;
+        constexpr std::size_t length = sizeof...(Ts) + 1;
         const auto savepoint = arc.npos();
 
-        if(!load_length<type::array>(arc, len))
+        std::size_t len = 0;
+        if(!load_length<type::array>(arc, len) || len != length)
         {
             arc.seek(savepoint);
             return false;
@@ -359,7 +360,7 @@ struct save_load_util<type::array>
     }
 
     template<typename Arc>
-    static bool load_red(Arc& arc)
+    static bool load_rec(Arc& arc)
     {
         return true;
     }
