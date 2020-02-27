@@ -90,7 +90,7 @@ struct register_subclass;
 
 // to bind user-defined archives.
 template<typename ...Arcs>
-struct bind_archives {};
+struct bind_archivers {};
 
 template<typename Base, typename Derived>
 struct registered
@@ -99,16 +99,16 @@ struct registered
 
     template<typename Factory>
     explicit registered(const Factory& init)
-        : registered(init, bind_archives<write_archiver, read_archiver>())
+        : registered(init, bind_archivers<write_archiver, read_archiver>())
     {}
 
     template<typename ... Arcs>
-    explicit registered(const bind_archives<Arcs...>& arcs)
+    explicit registered(const bind_archivers<Arcs...>& arcs)
         : registered([](){Derived der; return der;}, arcs)
     {}
 
     template<typename Factory, typename ... Arcs>
-    explicit registered(const Factory& f, const bind_archives<Arcs...>& arcs)
+    explicit registered(const Factory& f, const bind_archivers<Arcs...>& arcs)
     {
         register_archive(f, arcs);
     }
@@ -116,17 +116,17 @@ struct registered
   private:
 
     template<typename Factory>
-    static void register_archive(const Factory&, const bind_archives<>&)
+    static void register_archive(const Factory&, const bind_archivers<>&)
     {
         return ;
     }
     template<typename Factory, typename Arc, typename ... Arcs>
     static void register_archive(const Factory& f,
-                                 const bind_archives<Arc, Arcs...>&)
+                                 const bind_archivers<Arc, Arcs...>&)
     {
         register_save<Arc>();
         register_load<Arc>(f);
-        return register_archive(f, bind_archives<Arcs...>());
+        return register_archive(f, bind_archivers<Arcs...>());
     }
 
     template<typename Arc>
