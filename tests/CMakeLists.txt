@@ -18,6 +18,7 @@ set(TEST_NAMES
     test_tag
     test_in_place
     test_user_defined
+    test_inheritance
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
