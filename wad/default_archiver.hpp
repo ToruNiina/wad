@@ -8,7 +8,7 @@
 namespace wad
 {
 
-class write_archive
+class write_archiver
 {
   public:
     using sink_iterator = std::back_insert_iterator<std::vector<std::uint8_t>>;
@@ -68,12 +68,12 @@ class write_archive
     std::vector<std::uint8_t> buffer_;
 };
 
-class read_archive
+class read_archiver
 {
   public:
     using src_iterator = std::vector<std::uint8_t>::const_iterator;
 
-    explicit read_archive(const std::string& filename)
+    explicit read_archiver(const std::string& filename)
     {
         std::ifstream ifs(filename);
         if(!ifs.good())
@@ -93,7 +93,7 @@ class read_archive
 
         this->iter_ = this->buffer_.begin();
     }
-    ~read_archive() = default;
+    ~read_archiver() = default;
 
     // return an iterator through which we can read some bytes from the buffer.
     //
