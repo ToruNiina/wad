@@ -1,5 +1,9 @@
 # wad
 
+[![C/C++ CI](https://github.com/ToruNiina/wad/workflows/C/C++%20CI/badge.svg?branch=master)](https://github.com/ToruNiina/wad/actions)
+[![Version](https://img.shields.io/github/release/ToruNiina/wad.svg?style=flat)](https://github.com/ToruNiina/wad/releases)
+[![LICENSE](https://img.shields.io/github/license/ToruNiina/wad)](LICENSE)
+
 serialize/deserialize into/from msgpack.
 
 ```cpp
