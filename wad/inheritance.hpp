@@ -110,23 +110,23 @@ struct registered
     template<typename Factory, typename ... Arcs>
     explicit registered(const Factory& f, const bind_archivers<Arcs...>& arcs)
     {
-        register_archive(f, arcs);
+        register_archiver(f, arcs);
     }
 
   private:
 
     template<typename Factory>
-    static void register_archive(const Factory&, const bind_archivers<>&)
+    static void register_archiver(const Factory&, const bind_archivers<>&)
     {
         return ;
     }
     template<typename Factory, typename Arc, typename ... Arcs>
-    static void register_archive(const Factory& f,
+    static void register_archiver(const Factory& f,
                                  const bind_archivers<Arc, Arcs...>&)
     {
         register_save<Arc>();
         register_load<Arc>(f);
-        return register_archive(f, bind_archivers<Arcs...>());
+        return register_archiver(f, bind_archivers<Arcs...>());
     }
 
     template<typename Arc>
