@@ -2,6 +2,7 @@
 #define WAD_COMPLEX_HPP
 #include "binary_cast.hpp"
 #include "type.hpp"
+#include "string.hpp"
 #include <utility>
 #include <complex>
 
@@ -39,13 +40,13 @@ bool load(Arc& arc, std::complex<T>& v)
 
     value_type  val;
     std::string key;
-    if(!load(arc, key) || key != "real" || load(arc, val))
+    if(!load(arc, key) || key != "real" || !load(arc, val))
     {
         arc.seek(savepoint);
         return false;
     }
     v.real(val);
-    if(!load(arc, key) || key != "imag" || load(arc, val))
+    if(!load(arc, key) || key != "imag" || !load(arc, val))
     {
         arc.seek(savepoint);
         return false;
