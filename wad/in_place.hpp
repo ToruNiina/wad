@@ -75,49 +75,6 @@ bool load(Arc& arc, const base_binder<Base, Derived>& bb, Args&& ... args)
     return detail::save_load_util<T>::load_impl(arc, std::forward<Args>(args) ...);
 }
 
-// -------------------------------------------------------------------------------
-// archive version
-
-template<type T, typename Arc, typename ... Args>
-typename std::enable_if<detail::conjunction<
-    has_sink_method<Arc>, detail::negation<has_src_method<Arc>>,
-    detail::negation<is_base_binder<Args>> ...
-    >::value, bool>::type
-archive(Arc& arc, Args&& ... args)
-{
-    return save<T>(arc, std::forward<Args>(args) ...);
-}
-
-template<type T, typename Arc, typename ... Args>
-typename std::enable_if<detail::conjunction<
-    detail::negation<has_sink_method<Arc>>, has_src_method<Arc>,
-    detail::negation<is_base_binder<Args>> ...
-    >::value, bool>::type
-archive(Arc& arc, Args&& ... args)
-{
-    return load<T>(arc, std::forward<Args>(args) ...);
-}
-
-template<type T, typename Arc, typename Base, typename Derived, typename ... Args>
-typename std::enable_if<detail::conjunction<
-    has_sink_method<Arc>, detail::negation<has_src_method<Arc>>,
-    detail::negation<is_base_binder<Args>> ...
-    >::value, bool>::type
-archive(Arc& arc, const base_binder<Base, Derived>& bb, Args&& ... args)
-{
-    return save<T>(arc, bb, std::forward<Args>(args) ...);
-}
-
-template<type T, typename Arc, typename Base, typename Derived, typename ... Args>
-typename std::enable_if<detail::conjunction<
-    detail::negation<has_sink_method<Arc>>, has_src_method<Arc>,
-    detail::negation<is_base_binder<Args>> ...
-    >::value, bool>::type
-archive(Arc& arc, const base_binder<Base, Derived>& bb, Args&& ... args)
-{
-    return load<T>(arc, bb, std::forward<Args>(args) ...);
-}
-
 // ----------------------------------------------------------------------------
 // implementation.
 
