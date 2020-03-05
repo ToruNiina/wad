@@ -2,7 +2,6 @@
 #define WAD_INHERITANCE_HPP
 #include "binary_cast.hpp"
 #include "type.hpp"
-#include "archive.hpp"
 #include <utility>
 #include <map>
 #include <functional>
