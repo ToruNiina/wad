@@ -22,6 +22,10 @@ set(TEST_NAMES
     test_inheritance
     )
 
+if("${CMAKE_CXX_STANDARD}" STREQUAL "17")
+    set(TEST_NAMES ${TEST_NAMES} test_optional)
+endif()
+
 foreach(TEST_NAME ${TEST_NAMES})
     add_executable(${TEST_NAME} ${TEST_NAME}.cpp)
 
