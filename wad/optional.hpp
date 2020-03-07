@@ -29,6 +29,7 @@ bool save(Arc& arc, const std::optional<T>& v)
 template<typename T, typename Arc>
 bool load(Arc& arc, std::optional<T>& v)
 {
+    using value_type = typename std::optional<T>::value_type;
     const auto savepoint = arc.npos();
 
     tag t;
@@ -39,14 +40,17 @@ bool load(Arc& arc, std::optional<T>& v)
     if(t == tag::nil)
     {
         v = std::nullopt;
-        return ;
+        return true;
     }
     arc.seek(savepoint); // to load tag one more time
-    if(!load(arc, *v))
+
+    value_type val;
+    if(!load(arc, val))
     {
         arc.seek(savepoint);
         return false;
     }
+    v = std::move(val);
     return true;
 }
 
