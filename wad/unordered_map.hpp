@@ -38,6 +38,10 @@ bool save(Arc& arc, const std::unordered_map<Key, T, Hash, Pred, Alloc>& v)
 template<typename Key, typename T, typename Hash, typename Pred, typename Alloc, typename Arc>
 bool load(Arc& arc, std::unordered_map<Key, T, Hash, Pred, Alloc>& v)
 {
+    static_assert(std::is_default_constructible<Key>::value,
+                  "To load a type T, T must be default constructible.");
+    static_assert(std::is_default_constructible<T>::value,
+                  "To load a type T, T must be default constructible.");
     const auto savepoint = arc.npos();
 
     std::size_t len;

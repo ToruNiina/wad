@@ -33,6 +33,8 @@ bool save(Arc& arc, const std::vector<T, Alloc>& v)
 template<typename T, typename Alloc, typename Arc>
 bool load(Arc& arc, std::vector<T, Alloc>& v)
 {
+    static_assert(std::is_default_constructible<T>::value,
+                  "To load a type T, T must be default constructible.");
     const auto savepoint = arc.npos();
 
     std::size_t len;

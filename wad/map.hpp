@@ -38,6 +38,10 @@ bool save(Arc& arc, const std::map<Key, T, Compare, Alloc>& v)
 template<typename Key, typename T, typename Compare, typename Alloc, typename Arc>
 bool load(Arc& arc, std::map<Key, T, Compare, Alloc>& v)
 {
+    static_assert(std::is_default_constructible<Key>::value,
+                  "To load a type T, T must be default constructible.");
+    static_assert(std::is_default_constructible<T>::value,
+                  "To load a type T, T must be default constructible.");
     const auto savepoint = arc.npos();
 
     std::size_t len;

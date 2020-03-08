@@ -30,6 +30,8 @@ template<typename T, typename Arc>
 bool load(Arc& arc, std::optional<T>& v)
 {
     using value_type = typename std::optional<T>::value_type;
+    static_assert(std::is_default_constructible<value_type>::value,
+                  "To load a type T, T must be default constructible.");
     const auto savepoint = arc.npos();
 
     tag t;
