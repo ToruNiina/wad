@@ -9,6 +9,7 @@ set(TEST_NAMES
     test_deque
     test_list
     test_forward_list
+    test_valarray
     test_set
     test_unordered_set
     test_map
