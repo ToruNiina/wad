@@ -10,20 +10,15 @@
 namespace wad
 {
 
-template<std::size_t N, typename Alloc, typename Arc>
+template<std::size_t N, typename Arc>
 bool save(Arc& arc, const std::bitset<N>& v)
 {
     const auto savepoint = arc.npos();
 
-    if(!save_length<type::array>(arc, v.size()))
-    {
-        arc.seek(savepoint);
-        return false;
-    }
-
     std::ostringstream oss;
     oss << v;
-    if(!save(arc, oss.str()))
+    const std::string str = oss.str();
+    if(!save(arc, str))
     {
         arc.seek(savepoint);
         return false;
@@ -31,11 +26,9 @@ bool save(Arc& arc, const std::bitset<N>& v)
     return true;
 }
 
-template<std::size_t N, typename Alloc, typename Arc>
+template<std::size_t N, typename Arc>
 bool load(Arc& arc, std::bitset<N>& v)
 {
-    static_assert(std::is_default_constructible<T>::value,
-                  "To load a type T, T must be default constructible.");
     const auto savepoint = arc.npos();
 
     std::string str;
