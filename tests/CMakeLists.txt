@@ -10,6 +10,7 @@ set(TEST_NAMES
     test_list
     test_forward_list
     test_valarray
+    test_bitset
     test_set
     test_unordered_set
     test_map
