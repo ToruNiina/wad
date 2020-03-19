@@ -9,6 +9,7 @@ set(TEST_NAMES
     test_deque
     test_list
     test_forward_list
+    test_queue
     test_valarray
     test_bitset
     test_set
