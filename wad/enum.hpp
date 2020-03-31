@@ -19,7 +19,10 @@ typename std::enable_if<std::is_enum<T>::value, bool>::type
 load(Arc& arc, T& v)
 {
     typename std::underlying_type<T>::type underlying;
-    return load(arc, underlying);
+    const auto result = load(arc, underlying);
+    if(!result) {return result;}
+    v = static_cast<T>(underlying);
+    return result;
 }
 
 } // wad
