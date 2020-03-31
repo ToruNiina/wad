@@ -2,6 +2,7 @@ set(TEST_NAMES
     test_boolean
     test_integer
     test_floating
+    test_enum
     test_complex
     test_string
     test_array
