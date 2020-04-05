@@ -89,13 +89,18 @@ file, you can save/load it into/from msgpack.
 | `std::deque`          | `wad/deque.hpp`         |
 | `std::list`           | `wad/list.hpp`          |
 | `std::forward_list`   | `wad/forward_list.hpp`  |
+| `std::valarray`       | `wad/valarray.hpp`      |
 | `std::set`            | `wad/set.hpp`           |
 | `std::unordered_set`  | `wad/unordered_set.hpp` |
 | `std::map`            | `wad/map.hpp`           |
 | `std::unordered_map`  | `wad/unordered_map.hpp` |
 | `std::pair`           | `wad/pair.hpp`          |
 | `std::tuple`          | `wad/tuple.hpp`         |
+| `std::queue`          | `wad/queue.hpp`         |
 | `std::unique_ptr`     | `wad/unique_ptr.hpp`    |
+| `std::atomic`         | `wad/atomic.hpp`        |
+| `std::bitset`         | `wad/bitset.hpp`        |
+| `std::optional`       | `wad/optional.hpp`      |
 | RNGs (e.g. `mt19937`) | `wad/random.hpp`        |
 
 ## User-defined Class
