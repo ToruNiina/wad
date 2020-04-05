@@ -20,6 +20,7 @@ set(TEST_NAMES
     test_pair
     test_tuple
     test_random
+    test_atomic
     test_tag
     test_in_place
     test_user_defined
