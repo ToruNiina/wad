@@ -10,7 +10,12 @@ serialize/deserialize into/from msgpack.
 #include <map>
 #include <vector>
 #include <string>
-#include <wad.hpp>
+#include <wad/default_archiver.hpp>
+#include <wad/interface.hpp>
+#include <wad/in_place.hpp>
+#include <wad/string.hpp>
+#include <wad/vector.hpp>
+#include <wad/map.hpp>
 
 namespace user
 {
@@ -82,7 +87,9 @@ file, you can save/load it into/from msgpack.
 |:----------------------|:------------------------|
 | `bool`                | `wad/boolean.hpp`       |
 | integers              | `wad/integer.hpp`       |
+| enums                 | `wad/enum.hpp`          |
 | `float` and `double`  | `wad/floating.hpp`      |
+| `std::complex`        | `wad/complex.hpp`       |
 | `std::string`         | `wad/string.hpp`        |
 | `std::vector`         | `wad/vector.hpp`        |
 | `std::array`          | `wad/array.hpp`         |
@@ -102,6 +109,7 @@ file, you can save/load it into/from msgpack.
 | `std::bitset`         | `wad/bitset.hpp`        |
 | `std::optional`       | `wad/optional.hpp`      |
 | RNGs (e.g. `mt19937`) | `wad/random.hpp`        |
+| user-defined classes  | `wad/interface.hpp`     |
 
 ## User-defined Class
 
